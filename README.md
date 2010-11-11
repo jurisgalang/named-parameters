@@ -21,7 +21,7 @@ If you want to be selective about which classes will use it, do:
 
     require 'named-parameters/module'
 
-Then mix-in the `NamedParameters` module into the class of your choice, for
+-- then mix-in the `NamedParameters` module into the class of your choice, for
 example:
 
     class FooBar
@@ -31,7 +31,22 @@ example:
 
 Using the has_named_parameters Method
 -------------------------------------
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  
+The `has_named_parameters` method is used to declare that a method accepts a
+`Hash` argument that should be treated like named-parameters.
+
+For example:
+
+    class GoogleStorage
+      has_named_parameters :initialize, :required => [ :'access-key', :'secret-key' ]
+      def initialize opts = { }
+        # ...
+      end
+      
+      has_named_parameters :request, :optional => :timeout
+      def request path, opts = { }
+        # ...
+      end
+    end
 
 Dependencies
 ------------
