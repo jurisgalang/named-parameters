@@ -30,9 +30,9 @@ example:
       # ...
     end
 
-Declaring `has_named_parameters`
--------------------------------
-To declare certain methods in FooBar to 
+Using the has_named_parameters Method
+-------------------------------------
+  
 
 Dependencies
 ------------
