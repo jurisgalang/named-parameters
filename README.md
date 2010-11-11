@@ -1,6 +1,8 @@
 NamedParameters Gem
 ===================
-This gem enables/simulates named-parameters in Ruby.
+This gem enables/simulates named-parameters in Ruby; see: 
+http://en.wikipedia.org/wiki/named_parameter for more info on Named Parameters
+in general.
 
 Installation
 ------------
@@ -60,7 +62,7 @@ named `timeout`; so the following invocations will not raise error:
     gs.request '/some/path'
     gs.request '/some/path', :timeout => '500ms'
 
-But specifiying an unrecognized parameter, will raise an error:
+But specifying an unrecognized parameter, will raise an error:
 
     gs.request '/some/path', :ssl => true # ArgumentError, GoogleStorage#request unrecognized parameter: ssl
 
@@ -82,7 +84,7 @@ argument when a method that has been declared with `has_named_parameters` is
 called.
 
 It does not know the name of the `Hash` parameter for the method. So the 
-following method declarations:
+following variations:
 
     def service opts = { }
       # ...
