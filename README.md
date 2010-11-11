@@ -56,14 +56,14 @@ invocation will (correctly) raise an `ArgumentError`
 
     GoogleStorage.new   # ArgumentError, GoogleStorage#initialize requires: access-key, secret-key
 
-On the other-hand, it declares that the `request` method may accept a parameter
-named `timeout`; so the following invocations will not raise error:
+On the other-hand, it declares that the `request` method may optionally accept 
+a parameter named `timeout` - so the following invocations will not raise error:
 
     gs = GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
     gs.request '/some/path'
     gs.request '/some/path', :timeout => '500ms'
 
-But specifying an unrecognized parameter, will raise an error:
+But specifying an unrecognized parameter will do:
 
     gs.request '/some/path', :ssl => true # ArgumentError, GoogleStorage#request unrecognized parameter: ssl
 
