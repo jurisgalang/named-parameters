@@ -81,7 +81,42 @@ The `has_named_parameters` declaration simply looks for the first `Hash`
 argument when a method that has been declared with `has_named_parameters` is 
 called.
 
-It does not know the name of the `Hash` parameter for the method.
+It does not know the name of the `Hash` parameter for the method. So the 
+following method declarations:
+
+    def service opts = { }
+      # ...
+    end
+
+    def service options = { } 
+      # ...
+    end
+
+    def service params
+      # ...
+    end
+
+-- behave the same way, when the `has_named_parameter` clause is used:
+
+    # the following...
+    has_named_parameters :service, :optional => :timeout
+    def service params
+      # ...
+    end
+
+    # is essentially the same as...
+    has_named_parameters :service, :optional => :timeout
+    def service opts = { }
+      # ...
+    end
+
+    # as well as...
+    has_named_parameters :service, :optional => :timeout
+    def service opts
+      # ...
+    end
+    
+Since when the method is invoked, each one of the above could receive a `Hash`
 
 Limitation
 ----------
