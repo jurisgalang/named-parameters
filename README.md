@@ -32,12 +32,11 @@ example:
 Using the has_named_parameters Method
 -------------------------------------
 The `has_named_parameters` method is used to declare that a method accepts a
-`Hash` argument that should be treated like named-parameters.
-
-For example:
+`Hash` argument that should be treated like named-parameters:
 
     class GoogleStorage
-      has_named_parameters :initialize, :required => [ :'access-key', :'secret-key' ]
+      has_named_parameters :initialize, 
+        :required => [ :'access-key', :'secret-key' ]
       def initialize opts = { }
         # ...
       end
@@ -47,6 +46,46 @@ For example:
         # ...
       end
     end
+    
+Since the `GoogleStorage` class above declares that its initializer requires
+`:'access-key'` and  `:'secret-key'` to be specified, the following
+invocation will (correctly) raise an `ArgumentError` 
+
+    GoogleStorage.new   # ArgumentError, GoogleStorage#initialize requires: access-key, secret-key
+
+On the other-hand, it declares that the `request` method may accept a parameter
+named `timeout`; so the following invocations will not raise error:
+
+    gs = GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
+    gs.request '/some/path'
+    gs.request '/some/path', :timeout => '500ms'
+
+But specifiying an unrecognized parameter, will raise an error:
+
+    gs.request '/some/path', :ssl => true # ArgumentError, GoogleStorage#request unrecognized parameter: ssl
+
+Optional and Required Parameters
+--------------------------------
+Optional and required parameters may be declared in a single 
+`has_named_parameters` declaration:
+
+    has_named_parameters :request, :required => :path, :optional => :timeout
+
+To specify more than one optional or required parameter, use an `Array`:
+
+    has_named_parameters :request, :required => :path, :optional => [ :timeout, :ssl ]
+
+How It Works
+------------
+The `has_named_parameters` declaration simply looks for the first `Hash` 
+argument when a method that has been declared with `has_named_parameters` is 
+called.
+
+It does not know the name of the `Hash` parameter for the method.
+
+Limitation
+----------
+Currently, `has_named_parameters` may only be used with instance methods.
 
 Dependencies
 ------------
