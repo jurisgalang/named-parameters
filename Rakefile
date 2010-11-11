@@ -5,7 +5,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "named-parameters"
-    gem.summary = %Q{TODO: Poor man's named-parameters in Ruby}
+    gem.summary = %Q{Poor man's named-parameters in Ruby}
     gem.description = %Q{This gem enables (simulated) named-parameters in Ruby}
     gem.email = "jurisgalang@gmail.com"
     gem.homepage = "http://github.com/jurisgalang/named-parameters"

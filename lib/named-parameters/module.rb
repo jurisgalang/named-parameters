@@ -26,6 +26,11 @@ module NamedParameters
     spec[:required] ||= []
     spec[:optional] ||= []
     
+    spec = Hash[ spec.map{ |k, v| 
+      v = [ v ] unless v.instance_of? Array
+      [ k, v ]
+    } ]
+    
     sorter  = lambda{ |x, y| x.to_s <=> y.to_s }
     allowed = (spec[:optional] + spec[:required]).sort &sorter
     keys    = params.keys.map{ |k| k.to_sym }
@@ -49,6 +54,7 @@ module NamedParameters
   end
   
   module ClassMethods
+    protected
     def method_added name
       if specs.include?(name) && !instrumenting?
         @instrumenting = true

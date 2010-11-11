@@ -21,11 +21,13 @@ Gem::Specification.new do |s|
      "GPL-LICENSE",
      "MIT-LICENSE",
      "README.md",
+     "RELEASENOTES",
      "Rakefile",
      "VERSION",
      "lib/named-parameters.rb",
      "lib/named-parameters/module.rb",
      "lib/named-parameters/object.rb",
+     "named-parameters.gemspec",
      "spec/named-parameters_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
@@ -34,7 +36,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
-  s.summary = %q{TODO: Poor man's named-parameters in Ruby}
+  s.summary = %q{Poor man's named-parameters in Ruby}
   s.test_files = [
     "spec/named-parameters_spec.rb",
      "spec/spec_helper.rb"
