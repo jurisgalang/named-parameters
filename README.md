@@ -1,8 +1,9 @@
 NamedParameters Gem
 ===================
-This gem enables/simulates named-parameters in Ruby; see: 
-http://en.wikipedia.org/wiki/named_parameter for more info on Named Parameters
-in general.
+This gem enables/simulates named-parameters in Ruby.
+
+See: http://en.wikipedia.org/wiki/named_parameter for more information on 
+Named Parameters in general.
 
 Installation
 ------------
