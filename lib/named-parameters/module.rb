@@ -53,7 +53,7 @@ module NamedParameters
       if specs.include?(name) && !instrumenting?
         @instrumenting = true
         method = instance_method(name)
-        spec   = specs[name]
+        spec   = specs.delete(name)
         define_method name do |*args, &block|
           params = args.find{ |arg| arg.instance_of? Hash }
           NamedParameters::validate name, params || {}, spec
