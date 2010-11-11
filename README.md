@@ -10,12 +10,29 @@ Installation
 
 Usage
 -----    
-To enable it everywhere:
+To enable it everywhere (recommended):
 
     require 'named-parameters'
 
-To enable it     
+And all your classes should be able to declare:
 
+    has_named_parameters :method, :optional => [ ... ], :required => [ ... ]
+
+If you want to be selective about which classes will use it, do:
+
+    require 'named-parameters/module'
+
+Then mix-in the `NamedParameters` module into the class of your choice, for
+example:
+
+    class FooBar
+      include NamedParameters
+      # ...
+    end
+
+Declaring `has_named_parameters`
+-------------------------------
+To declare certain methods in FooBar to 
 
 Dependencies
 ------------
