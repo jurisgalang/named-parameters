@@ -131,7 +131,4 @@ Author
 License
 -------
 Dual licensed under the MIT or GPL Version 2 licenses.
-
-## Copyright
-
 Copyright (c) 2010 Juris Galang. See MIT-LICENSE and GPL-LICENSE for details.
