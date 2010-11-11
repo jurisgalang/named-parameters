@@ -1,3 +1,8 @@
+0.0.2 [Nov 10, 2010]
+--------------------
+- [BUGFIX] ArgumentError incorrectly references Module instead of actual class
+  that raised.
+
 0.0.1 [Nov 10, 2010]
 --------------------
 - Initial release.

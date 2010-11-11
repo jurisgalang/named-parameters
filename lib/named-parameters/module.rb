@@ -22,7 +22,6 @@ module NamedParameters
 
   private
   def self.validate name, params, spec
-    name = "#{self.class.name}##{name}"
     spec[:required] ||= []
     spec[:optional] ||= []
     
@@ -62,6 +61,7 @@ module NamedParameters
         spec   = specs.delete(name)
         define_method name do |*args, &block|
           params = args.find{ |arg| arg.instance_of? Hash }
+          name   = "#{self.class.name}##{name}"
           NamedParameters::validate name, params || {}, spec
           method.bind(self).call(*args, &block)
         end
