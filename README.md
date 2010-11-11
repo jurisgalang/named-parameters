@@ -130,7 +130,7 @@ Author
 
 License
 -------
-Dual licensed under the MIT or GPL Version 2 licenses.
+Dual licensed under the MIT or GPL Version 2 licenses.  
+See the MIT-LICENSE and GPL-LICENSE files for details.
 
-Copyright (c) 2010 Juris Galang. All Rights Reserved.  
-See MIT-LICENSE and GPL-LICENSE for details.
+Copyright (c) 2010 Juris Galang. All Rights Reserved.
