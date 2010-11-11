@@ -120,10 +120,6 @@ Since when the method is invoked, each one of the above could receive a `Hash`
 
     service :timeout => '500ms'
 
-Limitation
-----------
-Currently, `has_named_parameters` may only be used with instance methods.
-
 Dependencies
 ------------
 Development:
