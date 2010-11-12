@@ -1,6 +1,15 @@
 NamedParameters Gem
 ===================
-This gem enables/simulates named-parameters in Ruby.
+This gem enables/simulates named-parameters in Ruby. 
+
+It's a complement to the common Ruby idiom of using `Hash` args to emulate
+the use of named parameters. 
+
+It does this by extending the language with a `has_named_parameters` clause 
+that allows a class to declare the parameters that are acceptable to a method.
+
+The `has_named_parameters` dictates how the presence of these parameters are
+enforced.
 
 See: [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) from 
 Wikipedia for more information.
@@ -16,10 +25,6 @@ To enable it everywhere (recommended):
 
     require 'named-parameters'
 
-And all your classes should be able to declare:
-
-    has_named_parameters :method, :optional => [ ... ], :required => [ ... ]
-
 If you want to be selective about which classes will use it, do:
 
     require 'named-parameters/module'
@@ -32,10 +37,19 @@ example:
       # ...
     end
 
+Either way, classes would now be able to use the `has_named_parameters` clause:
+
+    class FooBar
+      has_named_parameters :foobar, :optional => [ .. ], :required => [ .. ],  :oneof => [ .. ]
+      def foobar opts = { }
+        # ...
+      end
+    end
+
 Using the `has_named_parameters` Method
 -------------------------------------
 The `has_named_parameters` method is used to declare that a method accepts a
-`Hash` argument that should be treated like named-parameters:
+`Hash` argument that should be treated like named parameters:
 
     class GoogleStorage
       has_named_parameters :initialize, 
