@@ -17,13 +17,15 @@
 #
 # @author Juris Galang
 #
-class Object  
+class Object
+  protected
   def eigenclass # :nodoc:
     class << self; self; end  
   end  
 end
 
 module NamedParameters
+  protected
   def self.included base # :nodoc:
     base.extend ClassMethods
   end
@@ -64,28 +66,29 @@ module NamedParameters
   end
   
   module ClassMethods
-    protected
     # Declares that `method` will enforce named parameters behavior as 
-    # described in `spec`; a method declared with `required` and/or `optional`
-    # parameters will raise an `ArgumentError` if it is invoked without its
-    # required parameters or receives an unrecognized parameter.
+    # described in `spec`; a method declared with `:required` and/or 
+    # `:optional` parameters will raise an `ArgumentError` if it is invoked 
+    # without its required parameters or receives an unrecognized parameter.
     #
     # Sample usage:
     #
-    #     has_named_parameters :point, :required => [ :x, :y ], 
-    #       :optional => :color
+    #     has_named_parameters :point, :required => [ :x, :y ], :optional => :color
     #
-    # @param [Symbol] `method` the name of the method that is supposed to 
+    # @param [Symbol] method the name of the method that is supposed to 
     #   enforce named parameters behavior.
     #
-    # @param [Hash] `spec` the list of required and optional parameters. 
-    #
-    # @return [Hash] the specified `spec` 
+    # @param [Hash] spec a `Hash` to specify the list of required and optional 
+    #   parameters for the method. Use either the `:required` or `:optional` 
+    #   key to specify required and optional lists of parameters. The list is
+    #   expected to be an `Array` of symbols matching the names of the 
+    #   expected and optional parameters.
     #
     def has_named_parameters method, spec = { }
       specs[method] = spec
     end
     
+    protected
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
       instrument name do

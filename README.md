@@ -2,8 +2,8 @@ NamedParameters Gem
 ===================
 This gem enables/simulates named-parameters in Ruby.
 
-See: http://en.wikipedia.org/wiki/named_parameter for more information on 
-Named Parameters in general.
+See: [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) from 
+Wikipedia for more information.
 
 Installation
 ------------
@@ -32,7 +32,7 @@ example:
       # ...
     end
 
-Using the has_named_parameters Method
+Using the `has_named_parameters` Method
 -------------------------------------
 The `has_named_parameters` method is used to declare that a method accepts a
 `Hash` argument that should be treated like named-parameters:
