@@ -10,6 +10,11 @@ describe "NamedParameters" do
       def method_one(x, y, opts = {}); end
 
       def method_two(x, y, opts = {}); end
+      
+      has_named_parameters :method_three, :required => :x, :optional => [ :y, :z ]
+      def self.method_three(x, y, opts = {}); end
+
+      def self.method_four(x, y, opts = {}); end
     end
   end
   
@@ -25,7 +30,7 @@ describe "NamedParameters" do
     lambda{ FooBar.new :x => :x, :y => :y, :z => :z }.should_not raise_error
   end
 
-  it "should enforce named parameters for instrumented methods" do
+  it "should enforce named parameters for instrumented instance methods" do
     lambda{ @foobar = FooBar.new :x => :x, :y => :y, :z => :z }.should_not raise_error
     lambda{ @foobar.method_one :x }.should raise_error ArgumentError
     lambda{ @foobar.method_one :x, :y }.should raise_error ArgumentError
@@ -37,10 +42,27 @@ describe "NamedParameters" do
     lambda{ @foobar.method_one :x, :y, :x => :x, :y => :y, :z => :z }.should_not raise_error
   end
 
-  it "should not enforce named parameters for un-instrumented methods" do
+  it "should not enforce named parameters for un-instrumented instance methods" do
     lambda{ @foobar = FooBar.new :x => :x, :y => :y, :z => :z }.should_not raise_error
     lambda{ @foobar.method_two :x }.should raise_error ArgumentError
     lambda{ @foobar.method_two :x, :y }.should_not raise_error ArgumentError
     lambda{ @foobar.method_two :x, :y, :w => :w }.should_not raise_error ArgumentError
+  end
+
+  it "should enforce named parameters for instrumented class methods" do
+    lambda{ FooBar.method_three :x }.should raise_error ArgumentError
+    lambda{ FooBar.method_three :x, :y }.should raise_error ArgumentError
+    lambda{ FooBar.method_three :x, :y, :x => :x, :y => :y, :z => :z, :w => :w }.should raise_error ArgumentError
+    lambda{ FooBar.method_three :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
+    lambda{ FooBar.method_three :x, :y, :w => :w }.should raise_error ArgumentError
+    lambda{ FooBar.method_three :x, :y, :x => :x }.should_not raise_error
+    lambda{ FooBar.method_three :x, :y, :x => :x, :y => :y }.should_not raise_error
+    lambda{ FooBar.method_three :x, :y, :x => :x, :y => :y, :z => :z }.should_not raise_error
+  end
+
+  it "should not enforce named parameters for un-instrumented class methods" do
+    lambda{ FooBar.method_four :x }.should raise_error ArgumentError
+    lambda{ FooBar.method_four :x, :y }.should_not raise_error ArgumentError
+    lambda{ FooBar.method_four :x, :y, :w => :w }.should_not raise_error ArgumentError
   end
 end
