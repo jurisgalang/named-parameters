@@ -67,20 +67,21 @@ But specifying an unrecognized parameter will do:
 
     gs.request '/some/path', :ssl => true # ArgumentError, GoogleStorage#request unrecognized parameter: ssl
     
-The `has_named_parameters` declaration may be used for either class or instance
-methods:
+The `has_named_parameters` declaration may be used for either class or 
+instance methods of a class:
 
-    class GoogleStorage
-      has_named_parameters :request, :optional => :timeout
-      def request path, opts = { }
+    class Point
+      has_named_parameters :initialize, :required => [ :x, :y ], :optional => :color
+      def initialize opts = { }
         # ...
       end
 
-      has_named_parameters :upload, :optional => :timeout
-      def upload filename, opts = { }
+      has_named_parameters :load, :optional => :translations
+      def self.load filename, opts => { }
         # ...
       end
     end
+    
 
 Optional and Required Parameters
 --------------------------------
