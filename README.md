@@ -50,8 +50,7 @@ The `has_named_parameters` method is used to declare that a method accepts a
 `Hash` argument that should be treated like named parameters:
 
     class GoogleStorage
-      has_named_parameters :initialize, 
-        :required => [ :'access-key', :'secret-key' ]
+      has_named_parameters :initialize, :required => [ :'access-key', :'secret-key' ]
       def initialize opts = { }
         # ...
       end
