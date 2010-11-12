@@ -64,7 +64,10 @@ module NamedParameters
       k = spec[:oneof] & keys
       raise ArgumentError, \
         "#{name} requires at least one of the following parameters: #{list[spec[:oneof]]}" \
-        unless k.length == 1 
+        if k.empty?
+      raise ArgumentError, \
+        "#{name} may specify only one of the following parameters: #{list[spec[:oneof]]}" \
+        if k.length > 1
     end
     
     # enforce that only declared parameters (:required, :optional, and :oneof)
