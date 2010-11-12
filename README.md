@@ -9,7 +9,7 @@ that allows a class to declare the parameters that are acceptable to a method.
 The `has_named_parameters` dictates how the presence of these parameters are
 enforced.
 
-See: [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) from 
+See: the [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) article from 
 Wikipedia for more information.
 
 Installation
