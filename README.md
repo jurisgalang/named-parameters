@@ -38,7 +38,7 @@ example:
 Either way, classes would now be able to use the `has_named_parameters` clause:
 
     class FooBar
-      has_named_parameters :foobar, :optional => [ .. ], :required => [ .. ],  :oneof => [ .. ]
+      has_named_parameters :foobar, :optional => [ .. ], :required => [ .. ], :oneof => [ .. ]
       def foobar opts = { }
         # ...
       end
@@ -63,7 +63,7 @@ The `has_named_parameters` method is used to declare that a method accepts a
     
 Since the `GoogleStorage` class above declares that its initializer requires
 `:'access-key'` and  `:'secret-key'` to be specified, the following
-invocation will (correctly) raise an `ArgumentError` 
+invocation will now (correctly) raise an `ArgumentError` 
 
     GoogleStorage.new   # ArgumentError, GoogleStorage#initialize requires: access-key, secret-key
 
