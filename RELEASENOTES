@@ -1,3 +1,7 @@
+0.0.3 [Nov 11, 2010]
+--------------------
+- Added support for has_named_parameter declaration for class methods.
+
 0.0.2 [Nov 10, 2010]
 --------------------
 - [BUGFIX] ArgumentError incorrectly references Module instead of actual class
