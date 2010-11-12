@@ -91,7 +91,7 @@ module NamedParameters
       instrument name do
         method = self.eigenclass.instance_method name
         spec   = specs.delete name
-        owner  = "#{self.name}."
+        owner  = "#{self.name}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
         end
