@@ -35,8 +35,7 @@ module NamedParameters
   # (based on the defined spec) when an instrumented method is invoked.
   #
   def self.validate name, params, spec  # :nodoc:
-    spec[:required] ||= []
-    spec[:optional] ||= []
+    [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
     
     spec = Hash[ spec.map{ |k, v| 
       v = [ v ] unless v.instance_of? Array
@@ -44,7 +43,7 @@ module NamedParameters
     } ]
     
     sorter  = lambda{ |x, y| x.to_s <=> y.to_s }
-    allowed = (spec[:optional] + spec[:required]).sort &sorter
+    allowed = (spec[:optional] + spec[:required] + spec[:oneof]).sort &sorter
     keys    = params.keys.map{ |k| k.to_sym }
     
     keys.sort! &sorter
@@ -52,13 +51,24 @@ module NamedParameters
     
     list = lambda{ |params| params.join(", ") }
     
+    # require that all of :required parameters are specified
     unless spec[:required].empty? 
       k = spec[:required] & keys
       raise ArgumentError, \
-        "#{name} requires arguments for parameters: #{list[spec[:required] - k]}" \
+        "#{name} requires the following parameters: #{list[spec[:required] - k]}" \
         unless k == spec[:required]
     end
     
+    # require that one (and only one) of :oneof parameters is specified
+    unless spec[:oneof].empty?
+      k = spec[:oneof] & keys
+      raise ArgumentError, \
+        "#{name} requires at least one of the following parameters: #{list[spec[:oneof]]}" \
+        unless k.length == 1 
+    end
+    
+    # enforce that only declared parameters (:required, :optional, and :oneof)
+    # may be specified
     k = keys - allowed    
     raise ArgumentError, \
       "Unrecognized parameter specified on call to #{name}: #{list[k]}" \
