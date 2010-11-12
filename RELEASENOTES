@@ -1,3 +1,7 @@
+0.0.5 [Nov 11, 2010]
+--------------------
+- [BUGFIX] Same as 0.0.4 - except this time it's really fixed :-)
+
 0.0.4 [Nov 11, 2010]
 --------------------
 - [BUGFIX] Reported method name when ArgumentError is raised was ugly. 

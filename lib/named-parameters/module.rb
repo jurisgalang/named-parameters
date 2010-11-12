@@ -123,9 +123,9 @@ module NamedParameters
     # insert parameter validation prior to executing the instrumented method
     def intercept method, owner, name, spec  # :nodoc:
       define_method name do |*args, &block|
-        params = args.find{ |arg| arg.instance_of? Hash }
-        name   = "#{owner}#{name}"
-        NamedParameters::validate name, params || {}, spec
+        params   = args.find{ |arg| arg.instance_of? Hash }
+        fullname = "#{owner}#{name}"
+        NamedParameters::validate fullname, params || {}, spec
         method.bind(self).call(*args, &block)
       end
     end
