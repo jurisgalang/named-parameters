@@ -1,9 +1,7 @@
 NamedParameters Gem
 ===================
-This gem enables/simulates named-parameters in Ruby. 
-
-It's a complement to the common Ruby idiom of using `Hash` args to emulate
-the use of named parameters. 
+This gem enables/simulates named-parameters in Ruby. It's a complement to the 
+common Ruby idiom of using `Hash` args to emulate the use of named parameters. 
 
 It does this by extending the language with a `has_named_parameters` clause 
 that allows a class to declare the parameters that are acceptable to a method.
