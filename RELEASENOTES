@@ -1,4 +1,4 @@
-0.0.6 [UNRELEASED]
+0.0.6 [Nov 13, 2010]
 - [FEATURE] Added support for requiring one-of from a list of named 
   parameters.
 - [FEATURE] Added support for declaring default values for parameters.
