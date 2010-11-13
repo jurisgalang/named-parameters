@@ -9,146 +9,137 @@ that allows a class to declare the parameters that are acceptable to a method.
 The `has_named_parameters` dictates how the presence of these parameters are
 enforced.
 
-See: the [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) article from 
-Wikipedia for more information.
+See: the [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) 
+article from Wikipedia for more information.
 
-Installation
-------------
+Get It
+------
+You know you want it:
 
     gem install named-parameters
 
-Usage
------    
-To enable it everywhere (recommended):
+Use It
+------
+Make it available everywhere:
 
-    require 'named-parameters'
-
-If you want to be selective about which classes will use it, do:
-
+    require 'named-parameters'   
+    
+But if you want to be selective:
+    
     require 'named-parameters/module'
 
--- then mix-in the `NamedParameters` module into the class of your choice, for
-example:
+-- and include the `NamedParameters` module into your class:
 
-    class FooBar
+    class YourClass
       include NamedParameters
-      # ...
     end
+    
+Either way, now your class would now be able to  use the 
+`has_named_parameters` clause as needed:
 
-Either way, classes would now be able to use the `has_named_parameters` clause:
-
-    class FooBar
-      has_named_parameters :foobar, :optional => [ .. ], :required => [ .. ], :oneof => [ .. ]
-      def foobar opts = { }
-        # ...
+    class YourClass
+      has_named_parameters :your_method, :require => :param
+      def your_method options
+        puts options.inspect
       end
     end
 
-Using the `has_named_parameters` Method
--------------------------------------
-The `has_named_parameters` method is used to declare that a method accepts a
-`Hash` argument that should be treated like named parameters:
+So when you invoke `your_method`, its parameter requirements will now be
+enforced:
 
-    class GoogleStorage
-      has_named_parameters :initialize, :required => [ :'access-key', :'secret-key' ]
-      def initialize opts = { }
-        # ...
+    obj = YourClass.new
+    obj.your_method :param => 'Et tu, Babe?'  # will spit out: 'Et tu, Babe?'
+    obj.your_method                           # will raise an exception
+        
+Abuse It
+--------
+Declare required parameters:
+
+    has_named_parameters :send_mail, :required => :to
+    has_named_parameters :send_mail, :required => [ :to, :subject ]
+    
+Declare optional parameters:
+
+    has_named_parameters :send_mail, :optional => :subject
+    has_named_parameters :send_mail, :optional => [ :subject, :bcc, :from ]
+    
+Declare one of a set of parameters as required (ie: require on and only
+one from a list):
+
+    has_named_parameters :send_mail, :oneof => [ :signature, :alias ]
+    
+Declare default values for optional parameters:
+    
+  has_named_parameters :send_mail, :optional => [ :subject, :bcc, { :from => 'yourself@example.org' } ]
+  has_named_parameters :send_mail, :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
+
+You can also declare default values for `:required` and `:oneof` parameters, 
+but really, that's just silly.
+
+You can mix-and-match parameter requirements:
+
+    has_named_parameters :send_mail, 
+      :required => [ :to, :subject, ],
+      :oneof    => [ :signature, :alias ],
+      :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
+
+And `has_named_parameters` is applicable to both class and instance methods:
+
+    require 'named-parameters'
+    
+    class Mailer
+      has_named_parameters :send_mail, 
+        :required => [ :to, :subject, ],
+        :oneof    => [ :signature, :alias ],
+        :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
+      def send_mail options
+        # ... do send mail stuff here ...
       end
       
-      has_named_parameters :request, :optional => :timeout
-      def request path, opts = { }
-        # ...
+      has_named_parameters :archive, :optional => [ :method => 'zip' ]
+      def self.archive options = { }
+        # ... do mail archiving stuff here ...
       end
     end
-    
-Since the `GoogleStorage` class above declares that its initializer requires
-`:'access-key'` and  `:'secret-key'` to be specified, the following
-invocation will now (correctly) raise an `ArgumentError` 
 
-    GoogleStorage.new   # ArgumentError, GoogleStorage#initialize requires: access-key, secret-key
+Gotchas
+-------
+When `has_named_parameters` is declared in a class, it instruments the class
+so that when the method in the declaration is invoked, a validation is 
+performed on the first `Hash` argument that was received by the method.
 
-On the other-hand, it declares that the `request` method may optionally accept 
-a parameter named `timeout` - so the following invocations will not raise error:
+It really has no idea about the position of the argument that is supposed
+to carry the named parameters.
 
-    gs = GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
-    gs.request '/some/path'
-    gs.request '/some/path', :timeout => '500ms'
+So you can mix-and-match argument types in a method, and still declare that
+it `has_named_parameters`:
 
-But specifying an unrecognized parameter will do:
-
-    gs.request '/some/path', :ssl => true # ArgumentError, GoogleStorage#request unrecognized parameter: ssl
-    
-The `has_named_parameters` declaration may be used for either class or 
-instance methods of a class:
-
-    class Point
-      has_named_parameters :initialize, :required => [ :x, :y ], :optional => :color
-      def initialize opts = { }
-        # ...
-      end
-
-      has_named_parameters :load, :optional => :translations
-      def self.load filename, opts => { }
-        # ...
-      end
+    has_named_parameters :request, :required => :accesskey
+    def request path, options
+      "path: #{path}, options: #{options.inspect}"
     end
     
-
-Optional and Required Parameters
---------------------------------
-Optional and required parameters may be declared in a single 
-`has_named_parameters` declaration:
-
-    has_named_parameters :request, :required => :path, :optional => :timeout
-
-To specify more than one optional or required parameter, use an `Array`:
-
-    has_named_parameters :request, :required => :path, :optional => [ :timeout, :ssl ]
-
-How It Works
-------------
-The `has_named_parameters` declaration simply looks for the first `Hash` 
-argument when a method that has been declared with `has_named_parameters` is 
-called.
-
-It does not know the name of the `Hash` parameter for the method. So the 
-following variations:
-
-    def service opts = { }
-      # ...
-    end
-
-    def service options = { } 
-      # ...
-    end
-
-    def service params
-      # ...
-    end
-
--- behave the same way, when the `has_named_parameter` clause is used:
-
-    # the following...
-    has_named_parameters :service, :optional => :timeout
-    def service params
-      # ...
-    end
-
-    # is essentially the same as...
-    has_named_parameters :service, :optional => :timeout
-    def service opts = { }
-      # ...
-    end
-
-    # as well as...
-    has_named_parameters :service, :optional => :timeout
-    def service opts
-      # ...
-    end
+    # invocation:
+    request "/xxx", :accesskey => '0925'  
     
-Since when the method is invoked, each one of the above could receive a `Hash`
+    # result:
+    # => path: /xxx, options: {:accesskey => '0925'}
+    
+But be careful when you have something like the following:
 
-    service :timeout => '500ms'
+    has_named_parameters :request, :required => :accesskey
+    def request path, options = { }
+      "path: #{path}, options: #{options.inspect}"
+    end
+
+    # invocation:
+    request :accesskey => '0925'  
+    
+    # result isn't what's expected:
+    # => path: {:accesskey => '0925'}, options: {}
+
+The next release of the gem will adopt the convention of having the `Hash` 
+argument as the last argument passed to the method.
 
 Dependencies
 ------------
