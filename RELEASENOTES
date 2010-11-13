@@ -1,3 +1,10 @@
+0.0.6 [UNRELEASED]
+- [FEATURE] Added support for requiring one-of from a list of named parameters.
+- [FEATURE] Added support for declaring default values for parameters.
+- [INTERNAL] spec is now normalized inside the has_named_parameters 
+  declaration allowing more flexible notation when when specifying default
+  values for parameters.
+
 0.0.5 [Nov 11, 2010]
 --------------------
 - [BUGFIX] Same as 0.0.4 - except this time it's really fixed :-)
@@ -8,7 +15,8 @@
 
 0.0.3 [Nov 11, 2010]
 --------------------
-- Added support for has_named_parameter declaration for class methods.
+- [FEATURE] Added support for has_named_parameter declaration for class 
+  methods.
 
 0.0.2 [Nov 10, 2010]
 --------------------
