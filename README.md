@@ -62,7 +62,7 @@ Declare optional parameters:
     has_named_parameters :send_mail, :optional => :subject
     has_named_parameters :send_mail, :optional => [ :subject, :bcc, :from ]
     
-Declare one of a set of parameters as required (ie: require on and only
+Declare one of a set of parameters as required (ie: require one and only
 one from a list):
 
     has_named_parameters :send_mail, :oneof => [ :signature, :alias ]
