@@ -75,7 +75,7 @@ Declare default values for optional parameters:
 You can also declare default values for `:required` and `:oneof` parameters, 
 but really, that's just silly.
 
-With `has_named_parameters` you can mix-and-match parameter requirements:
+With `has_named_parameters`, you can mix-and-match parameter requirements:
 
     has_named_parameters :send_mail, 
       :required => [ :to, :subject, ],
