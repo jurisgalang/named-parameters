@@ -23,11 +23,11 @@ Make it available everywhere:
 
     require 'named-parameters'   
     
-But if you want to be selective, just:
+But if you want to be selective, do:
     
     require 'named-parameters/module'
 
-- and include the `NamedParameters` module into your class:
+Then include the `NamedParameters` module into your class:
 
     class YourClass
       include NamedParameters
