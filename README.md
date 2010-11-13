@@ -70,8 +70,8 @@ one from a list):
     
 Declare default values for optional parameters:
     
-  has_named_parameters :send_mail, :optional => [ :subject, :bcc, { :from => 'yourself@example.org' } ]
-  has_named_parameters :send_mail, :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
+    has_named_parameters :send_mail, :optional => [ :subject, :bcc, { :from => 'yourself@example.org' } ]
+    has_named_parameters :send_mail, :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
 
 You can also declare default values for `:required` and `:oneof` parameters, 
 but really, that's just silly.
