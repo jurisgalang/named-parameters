@@ -1,4 +1,4 @@
-0.0.6 [UNRELEASED]
+0.0.7 [UNRELEASED]
 - [FEATURE] Added support to distinguish named parameters declaration for class
   and instance methods that uses the same names. So now you could do:
   
