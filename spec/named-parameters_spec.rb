@@ -16,7 +16,7 @@ describe "NamedParameters" do
 
       def self.method_four x, y, opts = {}; end
     end
-    
+
     class Bar
       has_named_parameters :method_with_one_required, :required => :x
       def method_with_one_required opts = {}; end
@@ -39,7 +39,6 @@ describe "NamedParameters" do
       has_named_parameters :method_with_one_of_each_requirement, :required => :w, :oneof => [ :x, :y ], :optional => :z
       def method_with_one_of_each_requirement opts = {}; end
     end
-    @bar = Bar.new
   end
   
   it "should allow declaration of has_named_parameters" do
@@ -91,51 +90,54 @@ describe "NamedParameters" do
   end
   
   it "should require all :required parameters" do
-    lambda{ @bar.method_with_one_required }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_required :a => :a }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_required :x => :x }.should_not raise_error
+    bar = Bar.new
+    lambda{ bar.method_with_one_required }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_required :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_required :x => :x }.should_not raise_error
             
-    lambda{ @bar.method_with_many_required }.should raise_error ArgumentError
-    lambda{ @bar.method_with_many_required :x => :x }.should raise_error ArgumentError
-    lambda{ @bar.method_with_many_required :x => :x, :y => :y }.should_not raise_error
+    lambda{ bar.method_with_many_required }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_required :x => :x }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_required :x => :x, :y => :y }.should_not raise_error
   end
   
   it "should require one and only one of :oneof parameters" do
-    lambda{ @bar.method_with_one_oneof }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_oneof :a => :a }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_oneof :x => :x }.should_not raise_error
-
-    lambda{ @bar.method_with_many_oneof }.should raise_error ArgumentError
-    lambda{ @bar.method_with_many_oneof :a => :a }.should raise_error ArgumentError
-    lambda{ @bar.method_with_many_oneof :x => :x }.should_not raise_error
-    lambda{ @bar.method_with_many_oneof :y => :y }.should_not raise_error
-    lambda{ @bar.method_with_many_oneof :x => :x, :y => :y }.should raise_error ArgumentError
+    bar = Bar.new
+    lambda{ bar.method_with_one_oneof }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_oneof :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_oneof :x => :x }.should_not raise_error
+            
+    lambda{ bar.method_with_many_oneof }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_oneof :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_oneof :x => :x }.should_not raise_error
+    lambda{ bar.method_with_many_oneof :y => :y }.should_not raise_error
+    lambda{ bar.method_with_many_oneof :x => :x, :y => :y }.should raise_error ArgumentError
   end
   
   it "should reject parameters not declared in :required, :optional, or :oneof" do
-    lambda{ @bar.method_with_one_optional }.should_not raise_error
-    lambda{ @bar.method_with_one_optional :x => :x }.should_not raise_error
-    lambda{ @bar.method_with_one_optional :a => :a }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_optional :x => :x, :y => :y }.should raise_error ArgumentError
-
-    lambda{ @bar.method_with_many_optional }.should_not raise_error
-    lambda{ @bar.method_with_many_optional :x => :x }.should_not raise_error
-    lambda{ @bar.method_with_many_optional :y => :y }.should_not raise_error
-    lambda{ @bar.method_with_many_optional :x => :x, :y => :y }.should_not raise_error
-    lambda{ @bar.method_with_many_optional :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
-
-    lambda{ @bar.method_with_one_of_each_requirement }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x }.should_not raise_error
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :y => :y }.should_not raise_error
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x, :y => :y }.should raise_error ArgumentError
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z }.should_not raise_error
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :y => :y, :z => :z }.should_not raise_error
-    lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error ArgumentError
+    bar = Bar.new
+    lambda{ bar.method_with_one_optional }.should_not raise_error
+    lambda{ bar.method_with_one_optional :x => :x }.should_not raise_error
+    lambda{ bar.method_with_one_optional :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_optional :x => :x, :y => :y }.should raise_error ArgumentError
+            
+    lambda{ bar.method_with_many_optional }.should_not raise_error
+    lambda{ bar.method_with_many_optional :x => :x }.should_not raise_error
+    lambda{ bar.method_with_many_optional :y => :y }.should_not raise_error
+    lambda{ bar.method_with_many_optional :x => :x, :y => :y }.should_not raise_error
+    lambda{ bar.method_with_many_optional :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
+            
+    lambda{ bar.method_with_one_of_each_requirement }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement :w => :w }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x }.should_not raise_error
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :y => :y }.should_not raise_error
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z }.should_not raise_error
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :y => :y, :z => :z }.should_not raise_error
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error ArgumentError
   end
 
   it "should be able to supply the default values for optional parameters" do
-    class Bar
+    class Zoo
       has_named_parameters :method_with_one_optional_parameter, :optional => { :x => 1 }
       def method_with_one_optional_parameter opts = { }; opts[:x]; end
 
@@ -145,28 +147,29 @@ describe "NamedParameters" do
       has_named_parameters :method_with_many_optional_parameters_too, :optional => [ { :x => 1 }, { :y => 2 } ]
       def method_with_many_optional_parameters_too opts = { }; opts[:x] + opts[:y]; end
     end
-    bar = Bar.new
-    bar.method_with_one_optional_parameter.should eql 1
-    bar.method_with_one_optional_parameter(:x => 2).should eql 2
     
-    bar.method_with_many_optional_parameters.should eql 3
-    bar.method_with_many_optional_parameters(:x => 2).should eql 4
-    bar.method_with_many_optional_parameters(:x => 2, :y => 3).should eql 5
+    zoo = Zoo.new
+    zoo.method_with_one_optional_parameter.should eql 1
+    zoo.method_with_one_optional_parameter(:x => 2).should eql 2
 
-    bar.method_with_many_optional_parameters_too.should eql 3
-    bar.method_with_many_optional_parameters_too(:x => 2).should eql 4
-    bar.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql 5
+    zoo.method_with_many_optional_parameters.should eql 3
+    zoo.method_with_many_optional_parameters(:x => 2).should eql 4
+    zoo.method_with_many_optional_parameters(:x => 2, :y => 3).should eql 5
+
+    zoo.method_with_many_optional_parameters_too.should eql 3
+    zoo.method_with_many_optional_parameters_too(:x => 2).should eql 4
+    zoo.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql 5
   end
   
   it "should be able to instrument the class method new" do
-    class Bar
+    class Quux
       has_named_parameters :new, :required => :x
       def self.new opts = { }; end
       def initialize opts = { }; end
     end
-    lambda { Bar.new }.should raise_error ArgumentError
-    lambda { Bar.new :y => :y }.should raise_error ArgumentError
-    lambda { Bar.new :x => :x, :y => :y }.should raise_error ArgumentError
-    lambda { Bar.new :x => :x }.should_not raise_error
+    lambda { Quux.new }.should raise_error ArgumentError
+    lambda { Quux.new :y => :y }.should raise_error ArgumentError
+    lambda { Quux.new :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda { Quux.new :x => :x }.should_not raise_error
   end
 end
