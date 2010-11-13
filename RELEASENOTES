@@ -1,3 +1,21 @@
+0.0.6 [UNRELEASED]
+- [FEATURE] Added support to distinguish named parameters declaration for class
+  and instance methods that uses the same names. So now you could do:
+  
+      class Mailer
+        has_named_parameters :send_mail, 
+          :required => :to, 
+          :optional => [ :from, 'yourself@example.org' ]
+        def send_mail options = { }
+          Mailer.send_mail options
+        end
+
+        has_named_parameters :'self.send_mail', :required => [ :to, :from ]
+        def self.send_mail options = { }
+          # ... do mail sending stuff here ...
+        end
+      end
+
 0.0.6 [Nov 13, 2010]
 - [FEATURE] Added support for requiring one-of from a list of named 
   parameters.

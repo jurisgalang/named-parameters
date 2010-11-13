@@ -111,7 +111,7 @@ module NamedParameters
         v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
         [ k, v ]
       } ]
-      specs[method] = spec
+      specs[key_for(method)] = spec
     end
     
     protected
@@ -151,7 +151,7 @@ module NamedParameters
     def singleton_method_added name  # :nodoc:
       instrument name do
         method = self.eigenclass.instance_method name
-        spec   = specs.delete name
+        spec   = specs[key_for :"self.#{name}"] || specs[key_for name]
         owner  = "#{self.name}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
@@ -164,7 +164,7 @@ module NamedParameters
     def method_added name  # :nodoc:
       instrument name do
         method = instance_method name
-        spec   = specs.delete name
+        spec   = specs[key_for name] || specs[key_for :"self.#{name}"]
         owner  = "#{self.name}#"
         intercept method, owner, name, spec
       end
@@ -174,7 +174,7 @@ module NamedParameters
     private
     # apply instrumentation to method
     def instrument method  # :nodoc:
-      if specs.include? method and !instrumenting?
+      if specs.include? key_for(method) and !instrumenting?
         @instrumenting = true
         yield method
         @instrumenting = false
@@ -211,6 +211,11 @@ module NamedParameters
     # initialize specs table as needed 
     def specs  # :nodoc:
       @specs ||= { }
+    end
+    
+    def key_for method
+      type = method.to_s =~ /^self\./ ? :singleton : :instance
+      :"#{self.name}::#{type}.#{method}"
     end
     
     # check if in the process of instrumenting a method
