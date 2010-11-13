@@ -1,5 +1,8 @@
-# When mixed-in, this module adds has_named_parameters class method, which
-# can be used to declare methods that are supposed to accepts named-parameters.
+# named-parameters.rb
+# 
+# When mixed-in, the `NamedParameters` module adds has_named_parameters class 
+# method, which can be used to declare methods that are supposed to accepts 
+# named-parameters.
 # 
 # Sample usage:
 #
@@ -16,14 +19,8 @@
 #   FooBar.new :y => '...' # ArgumentError - since :x was not specified
 #
 # @author Juris Galang
+# @copyright 2010 Juris Galang. All Rights Reserved
 #
-class Object
-  protected
-  def eigenclass # :nodoc:
-    class << self; self; end  
-  end  
-end
-
 module NamedParameters
   protected
   def self.included base # :nodoc:
@@ -34,39 +31,43 @@ module NamedParameters
   # this is the method used to validate the name of the received parameters 
   # (based on the defined spec) when an instrumented method is invoked.
   #
-  def self.validate name, params, spec  # :nodoc:
-    [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
+  def self.validate_specs name, params, spec  # :nodoc:
+    # 
+    mapper   = lambda{ |e| e.instance_of?(Hash) ? e.keys.first : e }
+    optional = spec[:optional].map &mapper
+    required = spec[:required].map &mapper
+    oneof    = spec[:oneof].map &mapper
     
-    spec = Hash[ spec.map{ |k, v| 
-      v = [ v ] unless v.instance_of? Array
-      [ k, v ]
-    } ]
+    # determine what keys are allowed
+    order    = lambda{ |x, y| x.to_s <=> y.to_s }
+    allowed  = (optional + required + oneof).sort &order
     
-    sorter  = lambda{ |x, y| x.to_s <=> y.to_s }
-    allowed = (spec[:optional] + spec[:required] + spec[:oneof]).sort &sorter
-    keys    = params.keys.map{ |k| k.to_sym }
+    # determine what keys were passed;
+    # also, plugin the names of parameters assigned with default values
+    #keys     = (params.keys.map{ |k| k.to_sym } + defaults.keys).uniq
+    keys     = params.keys.map{ |k| k.to_sym }
+    keys.sort! &order
+    required.sort! &order
     
-    keys.sort! &sorter
-    spec[:required].sort! &sorter
-    
+    # this lambda is used to present the list of parameters as a string
     list = lambda{ |params| params.join(", ") }
-    
+        
     # require that all of :required parameters are specified
-    unless spec[:required].empty? 
-      k = spec[:required] & keys
+    unless required.empty? 
+      k = required & keys
       raise ArgumentError, \
-        "#{name} requires the following parameters: #{list[spec[:required] - k]}" \
-        unless k == spec[:required]
+        "#{name} requires the following parameters: #{list[required - k]}" \
+        unless k == required
     end
     
     # require that one (and only one) of :oneof parameters is specified
-    unless spec[:oneof].empty?
-      k = spec[:oneof] & keys
+    unless oneof.empty?
+      k = oneof & keys
       raise ArgumentError, \
-        "#{name} requires at least one of the following parameters: #{list[spec[:oneof]]}" \
+        "#{name} requires at least one of the following parameters: #{list[oneof]}" \
         if k.empty?
       raise ArgumentError, \
-        "#{name} may specify only one of the following parameters: #{list[spec[:oneof]]}" \
+        "#{name} may specify only one of the following parameters: #{list[oneof]}" \
         if k.length > 1
     end
     
@@ -92,16 +93,61 @@ module NamedParameters
     #   enforce named parameters behavior.
     #
     # @param [Hash] spec a `Hash` to specify the list of required and optional 
-    #   parameters for the method. Use either the `:required` or `:optional` 
-    #   key to specify required and optional lists of parameters. The list is
-    #   expected to be an `Array` of symbols matching the names of the 
-    #   expected and optional parameters.
+    #   parameters for the method. Use either the `:required`, `:optional`, or
+    #   `:oneof` key to specify the lists of parameters. The list is expected 
+    #   to be an `Array` of symbols matching the names of the expected and 
+    #   optional parameters.
+    #
+    #   Parameters are evaluated according their classification:
+    #
+    #   * `:required` means that all of these parameters must be specified.
+    #   * `:optional` means that all or none of these parameters may be used.
+    #   * `:oneof` means that one of these parameters must be specified.
     #
     def has_named_parameters method, spec = { }
+      # ensure spec entries are initialized and the proper types
+      [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
+      spec = Hash[ spec.map{ |k, v| 
+        v = [ v ] unless v.instance_of? Array
+        v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
+        [ k, v ]
+      } ]
       specs[method] = spec
     end
     
     protected
+    # Attach a validation block for a specific parameter that will be invoked 
+    # before the actual `method` call.
+    #
+    # @param [Symbol] method the name of the method.
+    #
+    # @param [Symbol] param the name of the parameter whose value is to be
+    #   validated.
+    #
+    # @param [lambda, Proc] &block the chunk of code that will perform the 
+    #   actual validation. It is expected to raise an error or return false
+    #   if the validation fails. It receives argument for `param` on 
+    #   invocation.
+    # 
+    #   If `&block` is not specified then it assumes that an implicit 
+    #   validation method is defined. It calculates the name of this method
+    #   by concatenating the values supplied for `method` and `param`, 
+    #   suffixed with the word `validation`, eg:
+    #
+    #     validates_arguments_for :request, :timeout
+    #     def request, opts = { }
+    #       ...
+    #     end
+    #    
+    #     private
+    #     def request_timeout_validation value
+    #       ...
+    #     end
+    #
+    def validates_arguments method, param, &block
+      # TODO: IMPLEMENT
+    end
+    
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
       instrument name do
@@ -138,10 +184,27 @@ module NamedParameters
     
     # insert parameter validation prior to executing the instrumented method
     def intercept method, owner, name, spec  # :nodoc:
+      fullname = "#{owner}#{name}"
       define_method name do |*args, &block|
-        params   = args.find{ |arg| arg.instance_of? Hash }
-        fullname = "#{owner}#{name}"
-        NamedParameters::validate fullname, params || {}, spec
+        # locate the argument representing the named parameters value
+        # for the method invocation
+        params = args.find{ |arg| arg.instance_of? Hash }
+        args << (params = { }) if params.nil?
+
+        # merge the declared default values for params into the arguments
+        # used when the method is invoked
+        defaults = { }
+        spec.each do |k, v|
+          v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
+        end
+        params = defaults.merge params
+        
+        # validate the parameters against the spec
+        NamedParameters::validate_specs fullname, params, spec
+        
+        # inject the updated argument values for params into the arguments
+        # before actually making method invocation
+        args.map!{ |arg| arg.instance_of?(Hash) ? params : arg }
         method.bind(self).call(*args, &block)
       end
     end

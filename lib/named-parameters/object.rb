@@ -1,3 +1,7 @@
-# Extend object to automatically make it available for all
-# user defined classes...
-Object.extend NamedParameters::ClassMethods
+# Do the eigenclass thingy
+class Object
+  protected
+  def eigenclass # :nodoc:
+    class << self; self; end  
+  end  
+end

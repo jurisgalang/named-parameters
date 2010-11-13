@@ -112,7 +112,7 @@ describe "NamedParameters" do
     lambda{ @bar.method_with_many_oneof :x => :x, :y => :y }.should raise_error ArgumentError
   end
   
-  it "should reject parameters not declred in :required, :optional, or :oneof" do
+  it "should reject parameters not declared in :required, :optional, or :oneof" do
     lambda{ @bar.method_with_one_optional }.should_not raise_error
     lambda{ @bar.method_with_one_optional :x => :x }.should_not raise_error
     lambda{ @bar.method_with_one_optional :a => :a }.should raise_error ArgumentError
@@ -132,5 +132,41 @@ describe "NamedParameters" do
     lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z }.should_not raise_error
     lambda{ @bar.method_with_one_of_each_requirement :w => :w, :y => :y, :z => :z }.should_not raise_error
     lambda{ @bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error ArgumentError
+  end
+
+  it "should be able to supply the default values for optional parameters" do
+    class Bar
+      has_named_parameters :method_with_one_optional_parameter, :optional => { :x => 1 }
+      def method_with_one_optional_parameter opts = { }; opts[:x]; end
+
+      has_named_parameters :method_with_many_optional_parameters, :optional => [ [ :x, 1 ], [ :y, 2 ] ]
+      def method_with_many_optional_parameters opts = { }; opts[:x] + opts[:y]; end
+
+      has_named_parameters :method_with_many_optional_parameters_too, :optional => [ { :x => 1 }, { :y => 2 } ]
+      def method_with_many_optional_parameters_too opts = { }; opts[:x] + opts[:y]; end
+    end
+    bar = Bar.new
+    bar.method_with_one_optional_parameter.should eql 1
+    bar.method_with_one_optional_parameter(:x => 2).should eql 2
+    
+    bar.method_with_many_optional_parameters.should eql 3
+    bar.method_with_many_optional_parameters(:x => 2).should eql 4
+    bar.method_with_many_optional_parameters(:x => 2, :y => 3).should eql 5
+
+    bar.method_with_many_optional_parameters_too.should eql 3
+    bar.method_with_many_optional_parameters_too(:x => 2).should eql 4
+    bar.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql 5
+  end
+  
+  it "should be able to instrument the class method new" do
+    class Bar
+      has_named_parameters :new, :required => :x
+      def self.new opts = { }; end
+      def initialize opts = { }; end
+    end
+    lambda { Bar.new }.should raise_error ArgumentError
+    lambda { Bar.new :y => :y }.should raise_error ArgumentError
+    lambda { Bar.new :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda { Bar.new :x => :x }.should_not raise_error
   end
 end
