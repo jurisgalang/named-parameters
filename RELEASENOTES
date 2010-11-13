@@ -5,6 +5,7 @@
 - [INTERNAL] spec is now normalized inside the has_named_parameters 
   declaration allowing more flexible notation when when specifying default
   values for parameters.
+- [INTERNAL] Updated tests.
 
 0.0.5 [Nov 11, 2010]
 --------------------
