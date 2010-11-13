@@ -1,5 +1,6 @@
 0.0.6 [UNRELEASED]
-- [FEATURE] Added support for requiring one-of from a list of named parameters.
+- [FEATURE] Added support for requiring one-of from a list of named 
+  parameters.
 - [FEATURE] Added support for declaring default values for parameters.
 - [INTERNAL] spec is now normalized inside the has_named_parameters 
   declaration allowing more flexible notation when when specifying default
