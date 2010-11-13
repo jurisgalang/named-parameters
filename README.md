@@ -33,8 +33,8 @@ Then include the `NamedParameters` module into your class:
       include NamedParameters
     end
     
-Either way, now your class would now be able to  use the 
-`has_named_parameters` clause as needed:
+Either way, you would now be able to  use the  `has_named_parameters` clause 
+as needed:
 
     class YourClass
       has_named_parameters :your_method, :require => :param
