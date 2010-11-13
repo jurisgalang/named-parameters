@@ -75,14 +75,14 @@ Declare default values for optional parameters:
 You can also declare default values for `:required` and `:oneof` parameters, 
 but really, that's just silly.
 
-You can mix-and-match parameter requirements:
+With `has_named_parameters` you can mix-and-match parameter requirements:
 
     has_named_parameters :send_mail, 
       :required => [ :to, :subject, ],
       :oneof    => [ :signature, :alias ],
       :optional => [ :subject, :bcc, [ :from, 'yourself@example.org' ] ]
 
-And `has_named_parameters` is applicable to both class and instance methods:
+And is applicable to both class and instance methods:
 
     require 'named-parameters'
     
