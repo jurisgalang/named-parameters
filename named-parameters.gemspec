@@ -10,7 +10,16 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Juris Galang"]
   s.date = %q{2010-11-13}
-  s.description = %q{This gem enables/simulates named-parameters in Ruby}
+  s.description = %q{This gem simulates named-parameters in Ruby. It's a complement to the common 
+    Ruby idiom of using `Hash` args to emulate the use of named parameters. 
+
+    It does this by extending the language with a `has_named_parameters` clause 
+    that allows a class to declare the parameters that are acceptable to a method.
+
+    The `has_named_parameters` dictates how the presence of these parameters are
+    enforced and raises an `ArgumentError` when a method invocation is made that
+    violates the rules for those parameters.
+    }
   s.email = %q{jurisgalang@gmail.com}
   s.extra_rdoc_files = [
     "README.md"

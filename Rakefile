@@ -6,7 +6,16 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "named-parameters"
     gem.summary = %Q{Poor man's named-parameters in Ruby}
-    gem.description = %Q{This gem enables/simulates named-parameters in Ruby}
+    gem.description = %Q{This gem simulates named-parameters in Ruby. It's a complement to the common 
+    Ruby idiom of using `Hash` args to emulate the use of named parameters. 
+
+    It does this by extending the language with a `has_named_parameters` clause 
+    that allows a class to declare the parameters that are acceptable to a method.
+
+    The `has_named_parameters` dictates how the presence of these parameters are
+    enforced and raises an `ArgumentError` when a method invocation is made that
+    violates the rules for those parameters.
+    }
     gem.email = "jurisgalang@gmail.com"
     gem.homepage = "http://github.com/jurisgalang/named-parameters"
     gem.authors = ["Juris Galang"]

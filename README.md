@@ -1,5 +1,3 @@
-NamedParameters Gem
-===================
 This gem simulates named-parameters in Ruby. It's a complement to the common 
 Ruby idiom of using `Hash` args to emulate the use of named parameters. 
 
