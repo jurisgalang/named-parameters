@@ -48,7 +48,7 @@ enforced:
 
     obj = YourClass.new
     obj.your_method :param => 'Et tu, Babe?'  # will spit out: 'Et tu, Babe?'
-    obj.your_method                           # will raise an exception
+    obj.your_method                           # will raise an exception, because the required :param was not specified
         
 Abuse It
 --------
