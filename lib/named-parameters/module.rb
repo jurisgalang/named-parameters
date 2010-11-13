@@ -32,8 +32,7 @@ module NamedParameters
   # (based on the defined spec) when an instrumented method is invoked.
   #
   def self.validate_specs name, params, spec  # :nodoc:
-    # 
-    mapper   = lambda{ |e| e.instance_of?(Hash) ? e.keys.first : e }
+    mapper   = lambda{ |n| n.instance_of?(Hash) ? n.keys.first : n }
     optional = spec[:optional].map &mapper
     required = spec[:required].map &mapper
     oneof    = spec[:oneof].map &mapper
