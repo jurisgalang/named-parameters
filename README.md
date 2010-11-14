@@ -106,8 +106,6 @@ Shortcuts
 In addition to the `has_named_parameters` method, `NamedParameters` also comes
 with two convenience methods for applying a parameter spec for constructors:
 
-### `requires`
-
 Use the `requires` clause to declare what parameters a class expects when it
 is instantiated:
 
@@ -118,8 +116,6 @@ is instantiated:
         # ... do googly stuff here ...
       end
     end
-    
-### `recognizes`
 
 Use the `recognizes` clause to specify optional parameters for constructors:
 
