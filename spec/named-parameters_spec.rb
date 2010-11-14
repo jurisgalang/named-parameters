@@ -172,4 +172,29 @@ describe "NamedParameters" do
     lambda { Quux.new :x => :x, :y => :y }.should raise_error ArgumentError
     lambda { Quux.new :x => :x }.should_not raise_error
   end
+  
+  it "should be able to specify optional parameters using the recognizes method" do
+    class Recognizes
+      recognizes [ :x, :y ]
+      def self.new opts = { }; end
+      def initialize opts = { }; end
+    end
+    lambda { Recognizes.new }.should_not raise_error
+    lambda { Recognizes.new :x => :x }.should_not raise_error
+    lambda { Recognizes.new :y => :y }.should_not raise_error
+    lambda { Recognizes.new :x => :x, :y => :y }.should_not raise_error
+    lambda { Recognizes.new :z => :z }.should raise_error ArgumentError
+  end
+
+  it "should be able to specify required parameters using the recognizes method" do
+    class Required
+      requires [ :x, :y ]
+      def self.new opts = { }; end
+      def initialize opts = { }; end
+    end
+    lambda { Required.new }.should raise_error ArgumentError
+    lambda { Required.new :x => :x }.should raise_error ArgumentError
+    lambda { Required.new :y => :y }.should raise_error ArgumentError
+    lambda { Required.new :x => :x, :y => :y }.should_not raise_error
+  end
 end

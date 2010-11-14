@@ -101,6 +101,47 @@ And is applicable to both class and instance methods:
       end
     end
 
+Shortcuts
+---------
+In addition to the `has_named_parameters` method, `NamedParameters` also comes
+with two convenience methods for applying a parameter spec for constructors:
+
+### `requires`
+
+Use the `requires` clause to declare what parameters a class expects when it
+is instantiated:
+
+    class GoogleStorage
+      requires [ :'access-key', :'secret-key' ]
+      
+      def initialize options
+        # ... do googly stuff here ...
+      end
+    end
+    
+### `recognizes`
+
+Use the `recognizes` clause to specify optional parameters for constructors:
+
+    class GoogleStorage
+      recognizes [ :'group-email', :'apps-domain' ]
+      
+      def initialize options
+        # ... do googly stuff here ...
+      end
+    end
+
+You may also specify default values for parameters when using these clauses:
+
+    class GoogleStorage
+      requires   [ :'access-key', :'secret-key' ]
+      recognizes [ [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ] ]
+
+      def initialize options
+        # ... do googly stuff here ...
+      end
+    end
+
 How It Works
 ------------
 When `has_named_parameters` is declared in a class, it instruments the class

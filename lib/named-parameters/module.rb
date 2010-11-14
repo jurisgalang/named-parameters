@@ -103,7 +103,7 @@ module NamedParameters
     #   * `:optional` means that all or none of these parameters may be used.
     #   * `:oneof` means that one of these parameters must be specified.
     #
-    def has_named_parameters method, spec = { }
+    def has_named_parameters method, spec
       # ensure spec entries are initialized and the proper types
       [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
       spec = Hash[ spec.map{ |k, v| 
@@ -112,6 +112,40 @@ module NamedParameters
         [ k, v ]
       } ]
       specs[key_for(method)] = spec
+    end
+    
+    # Convenience method, equivalent to declaring:
+    #
+    #     has_named_parameters :'self.new', :required => params
+    #     has_named_parameters :initialize, :required => params
+    # 
+    # @param [Array] params the lists of parameters. The list is expected 
+    #   to be an `Array` of symbols matching the names of the required 
+    #   parameters.
+    #
+    def requires params
+      [ :'new', :initialize ].each do |method|
+        spec = specs[key_for method] || { }
+        spec.merge!(:required => params)
+        has_named_parameters method, spec
+      end
+    end
+    
+    # Convenience method, equivalent to declaring:
+    #
+    #     has_named_parameters :'self.new', :optional => params
+    #     has_named_parameters :initialize, :optional => params
+    # 
+    # @param [Array] params the lists of parameters. The list is expected 
+    #   to be an `Array` of symbols matching the names of the optional
+    #   parameters.
+    #
+    def recognizes params
+      [ :'new', :initialize ].each do |method|
+        spec = specs[key_for method] || { }
+        spec.merge!(:optional => params)
+        has_named_parameters method, spec
+      end
     end
     
     protected
