@@ -142,10 +142,11 @@ How It Works
 ------------
 When the `has_named_parameters` is declared in a class, it instruments the 
 class so that when the method in the declaration is invoked, a validation is 
-performed on the first `Hash` argument that was received by the method.
+performed on the last `Hash` argument that was received by the method.
 
 It expects that the last argument is the the `Hash` args representing the 
-named parameters when a method is invoked.
+named parameters when a method is invoked. If no `Hash` args was supplied
+then it creates one.
 
 So you can mix-and-match argument types in a method, and still declare that
 it `has_named_parameters`:
