@@ -140,8 +140,8 @@ You may also specify default values for parameters when using these clauses:
 
 How It Works
 ------------
-When `has_named_parameters` is declared in a class, it instruments the class
-so that when the method in the declaration is invoked, a validation is 
+When the `has_named_parameters` is declared in a class, it instruments the 
+class so that when the method in the declaration is invoked, a validation is 
 performed on the first `Hash` argument that was received by the method.
 
 It expects that the last argument is the the `Hash` args representing the 
