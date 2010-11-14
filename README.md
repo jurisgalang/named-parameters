@@ -33,7 +33,7 @@ Then include the `NamedParameters` module into your class:
       include NamedParameters
     end
     
-Either way, you would now be able to  use the  `has_named_parameters` clause 
+Either way, you would now be able to  use the **`has_named_parameters`** clause 
 as needed:
 
     class YourClass
@@ -106,7 +106,7 @@ Shortcuts
 In addition to the `has_named_parameters` method, `NamedParameters` also comes
 with two convenience methods for applying a parameter spec for constructors:
 
-Use the `requires` clause to declare what parameters a class expects when it
+Use the **`requires`** clause to declare what parameters a class expects when it
 is instantiated:
 
     class GoogleStorage
@@ -117,7 +117,7 @@ is instantiated:
       end
     end
 
-Use the `recognizes` clause to specify optional parameters for constructors:
+Use the **`recognizes`** clause to specify optional parameters for constructors:
 
     class GoogleStorage
       recognizes [ :'group-email', :'apps-domain' ]
