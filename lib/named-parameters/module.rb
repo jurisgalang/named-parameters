@@ -187,8 +187,10 @@ module NamedParameters
       define_method name do |*args, &block|
         # locate the argument representing the named parameters value
         # for the method invocation
-        params = args.find{ |arg| arg.instance_of? Hash }
-        args << (params = { }) if params.nil?
+        # params = args.find{ |arg| arg.instance_of? Hash }
+        # args << (params = { }) if params.nil?
+        params = args.last
+        args << (params = { }) unless params.instance_of? Hash
 
         # merge the declared default values for params into the arguments
         # used when the method is invoked
@@ -203,7 +205,8 @@ module NamedParameters
         
         # inject the updated argument values for params into the arguments
         # before actually making method invocation
-        args.map!{ |arg| arg.instance_of?(Hash) ? params : arg }
+        # args.map!{ |arg| arg.instance_of?(Hash) ? params : arg }
+        args[args.length - 1] = params
         method.bind(self).call(*args, &block)
       end
     end
