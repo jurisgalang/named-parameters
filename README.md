@@ -101,44 +101,68 @@ And is applicable to both class and instance methods:
       end
     end
 
-Gotchas
--------
+How It Works
+------------
 When `has_named_parameters` is declared in a class, it instruments the class
 so that when the method in the declaration is invoked, a validation is 
 performed on the first `Hash` argument that was received by the method.
 
-It really has no idea about the position of the argument that is supposed
-to carry the named parameters.
+It expects that the last argument is the the `Hash` args representing the 
+named parameters when a method is invoked.
 
 So you can mix-and-match argument types in a method, and still declare that
 it `has_named_parameters`:
 
-    has_named_parameters :request, :required => :accesskey
+    has_named_parameters :request, 
+      :required => :key, 
+      :optional => [ :etc, 'howl' ]
     def request path, options
       "path: #{path}, options: #{options.inspect}"
     end
     
     # invocation:
-    request "/xxx", :accesskey => '0925'  
+    request "/xxx", :key => '0925'  
     
     # result:
-    # => path: /xxx, options: {:accesskey => '0925'}
-    
-But be careful when you have something like the following:
+    # => path: /xxx, options: {:key => '0925', :etc => 'howl'}
 
-    has_named_parameters :request, :required => :accesskey
-    def request path, options = { }
+Gotchas
+-------    
+It has no idea if the last argument really is the last argument. So be careful 
+when you have something similar to the following:
+
+    has_named_parameters :request, :optional => :key
+    def request path = "/xxx", options = { }
       "path: #{path}, options: #{options.inspect}"
     end
 
     # invocation:
-    request :accesskey => '0925'  
+    request :key => '0925'  
     
-    # result isn't what's expected:
+    # expecting:
+    # => path: /xxx, options: {:key => '0925'}
+    
+    # but actual result is:
     # => path: {:accesskey => '0925'}, options: {}
 
-The next release of the gem will adopt the convention of having the `Hash` 
-argument as the last argument passed to the method.
+For the above case, it might be better to refactor:
+
+    has_named_parameters :request, :optional => [ :key, [ :path, "/xxx" ] ]
+    def request options = { }
+      "path: #{options.delete :path}, options: #{options.inspect}"
+    end
+
+    # invocation:
+    request :key => '0925'  
+
+    # result:
+    # => path: /xxx, options: {:key => '0925'}
+
+    # invocation:
+    request
+
+    # result:
+    # => path: /xxx, options: {}
 
 Dependencies
 ------------
