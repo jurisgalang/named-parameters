@@ -138,6 +138,43 @@ You may also specify default values for parameters when using these clauses:
       end
     end
 
+Strict
+------
+When a method is declared with `has_named_parameters` that method will only 
+accept keys that were listed as `:required`, `:optional`, or `:oneof` - 
+passing any other key to the `Hash` arg will raise an `ArgumentError` on
+method call:
+
+    has_named_parameters :exec, :required => :w, :optional => [ :x, :y ]
+    def exec opts 
+      # 
+    end
+    
+    # the following will raise an ArgumentError since :z was not declared
+    exec :w => 1, :x => 2, :y => 3, :z => 4
+
+But sometimes you need to be able to pass additional keys and you don't know 
+what those keys are. Setting the optional `mode` parameter for 
+`has_named_parameters` to `:permissive` will relax this restriction:
+
+    has_named_parameters :exec, { :required => :w, :optional => [ :x, :y ] }, :permissive
+    def exec opts 
+      # 
+    end
+
+    # the following will no longer raise an ArgumentError
+    exec :w => 1, :x => 2, :y => 3, :z => 4
+
+The `:required` and `:oneof` parameters will still be expected:
+
+    # the following will raise an ArgumentError since :w is required
+    exec :x => 2, :y => 3, :z => 4
+
+For clarity you should skip the `:optional` parameters list altogether when 
+using the `:permissive` mode.
+
+The `requires` and `recognizes` clause will also accept a `mode` setting.
+
 How It Works
 ------------
 When the `has_named_parameters` is declared in a class, it instruments the 

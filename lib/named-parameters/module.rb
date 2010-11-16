@@ -37,14 +37,14 @@ module NamedParameters
     required = spec[:required].map &mapper
     oneof    = spec[:oneof].map &mapper
     
-    # determine what keys are allowed
-    order    = lambda{ |x, y| x.to_s <=> y.to_s }
-    allowed  = (optional + required + oneof).sort &order
+    # determine what keys are allowed, unless mode is :permissive
+    # in which case we don't care unless its listed as required or oneof
+    order   = lambda{ |x, y| x.to_s <=> y.to_s }
+    allowed = spec[:mode] == :permissive ? [] : (optional + required + oneof).sort(&order)
     
     # determine what keys were passed;
     # also, plugin the names of parameters assigned with default values
-    #keys     = (params.keys.map{ |k| k.to_sym } + defaults.keys).uniq
-    keys     = params.keys.map{ |k| k.to_sym }
+    keys = params.keys.map{ |k| k.to_sym }
     keys.sort! &order
     required.sort! &order
     
@@ -103,7 +103,12 @@ module NamedParameters
     #   * `:optional` means that all or none of these parameters may be used.
     #   * `:oneof` means that one of these parameters must be specified.
     #
-    def has_named_parameters method, spec
+    # @param [Symbol] mode enforces that only parameters that were named in
+    #   either the `:required`, `:optional`, and `:oneof` list may be allowed.
+    #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
+    #   parameters will still be expected.
+    #
+    def has_named_parameters method, spec, mode = :strict
       # ensure spec entries are initialized and the proper types
       [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
       spec = Hash[ spec.map{ |k, v| 
@@ -111,6 +116,7 @@ module NamedParameters
         v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
         [ k, v ]
       } ]
+      spec[:mode] = mode
       specs[key_for(method)] = spec
     end
     
@@ -123,11 +129,16 @@ module NamedParameters
     #   to be an `Array` of symbols matching the names of the required 
     #   parameters.
     #
-    def requires params
-      [ :'new', :initialize ].each do |method|
+    # @param [Symbol] mode enforces that only parameters that were named in
+    #   either the `:required`, `:optional`, and `:oneof` list may be allowed.
+    #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
+    #   parameters will still be expected.
+    #
+    def requires params, mode = :strict
+      [ :new, :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:required => params)
-        has_named_parameters method, spec
+        has_named_parameters method, spec, mode
       end
     end
     
@@ -140,11 +151,16 @@ module NamedParameters
     #   to be an `Array` of symbols matching the names of the optional
     #   parameters.
     #
-    def recognizes params
-      [ :'new', :initialize ].each do |method|
+    # @param [Symbol] mode enforces that only parameters that were named in
+    #   either the `:required`, `:optional`, and `:oneof` list may be allowed.
+    #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
+    #   parameters will still be expected.
+    #
+    def recognizes params, mode = :strict
+      [ :new, :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:optional => params)
-        has_named_parameters method, spec
+        has_named_parameters method, spec, mode
       end
     end
     
@@ -221,8 +237,6 @@ module NamedParameters
       define_method name do |*args, &block|
         # locate the argument representing the named parameters value
         # for the method invocation
-        # params = args.find{ |arg| arg.instance_of? Hash }
-        # args << (params = { }) if params.nil?
         params = args.last
         args << (params = { }) unless params.instance_of? Hash
 
@@ -230,6 +244,7 @@ module NamedParameters
         # used when the method is invoked
         defaults = { }
         spec.each do |k, v|
+          next if k == :mode
           v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
         end
         params = defaults.merge params
@@ -239,7 +254,6 @@ module NamedParameters
         
         # inject the updated argument values for params into the arguments
         # before actually making method invocation
-        # args.map!{ |arg| arg.instance_of?(Hash) ? params : arg }
         args[args.length - 1] = params
         method.bind(self).call(*args, &block)
       end

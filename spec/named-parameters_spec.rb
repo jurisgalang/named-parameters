@@ -5,7 +5,7 @@ describe "NamedParameters" do
     class Foo
       has_named_parameters :initialize, :required => :x, :optional => [ :y, :z ]
       def initialize opts = {}; end
-      
+
       has_named_parameters :method_one, :required => :x, :optional => [ :y, :z ]
       def method_one x, y, opts = {}; end
 
