@@ -17,7 +17,7 @@
       end
 - [FEATURE] Added support for requires clause.
 - [FEATURE] Added support for recognizes clause.
-- [FEATURE] Added support for permissive evaluation of optional parameters
+- [FEATURE] Added support for permissive evaluation of optional parameters.
 - [INTERNAL] Will now expect that the Hash args for the named parameters is 
   the last argument of the method.
 
