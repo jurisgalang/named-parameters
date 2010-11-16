@@ -138,8 +138,8 @@ You may also specify default values for parameters when using these clauses:
       end
     end
 
-Strict
-------
+Permissive Mode
+---------------
 When a method is declared with `has_named_parameters` that method will only 
 accept keys that were listed as `:required`, `:optional`, or `:oneof` - 
 passing any other key to the `Hash` arg will raise an `ArgumentError` on
@@ -147,7 +147,7 @@ method call:
 
     has_named_parameters :exec, :required => :w, :optional => [ :x, :y ]
     def exec opts 
-      # 
+      # ...
     end
     
     # the following will raise an ArgumentError since :z was not declared
@@ -159,7 +159,7 @@ what those keys are. Setting the optional `mode` parameter for
 
     has_named_parameters :exec, { :required => :w, :optional => [ :x, :y ] }, :permissive
     def exec opts 
-      # 
+      # ...
     end
 
     # the following will no longer raise an ArgumentError
@@ -167,13 +167,21 @@ what those keys are. Setting the optional `mode` parameter for
 
 The `:required` and `:oneof` parameters will still be expected:
 
-    # the following will raise an ArgumentError since :w is required
+    # the following will still raise an ArgumentError since :w is required
     exec :x => 2, :y => 3, :z => 4
 
 For clarity you should skip the `:optional` parameters list altogether when 
 using the `:permissive` mode.
 
-The `requires` and `recognizes` clause will also accept a `mode` setting.
+The `requires` and `recognizes` clause for constructors will also accept a 
+`mode` setting:
+
+    requires   [ :x ], :permissive
+    recognizes [ :y, :z ], :permissive
+
+And just like the `:optional` parameter list in the `has_named_parameters` 
+clause, when `:permissive` mode is used, it's clearer to omit the `recognizes`
+clause altogether.
 
 How It Works
 ------------
