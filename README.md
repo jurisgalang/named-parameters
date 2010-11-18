@@ -8,8 +8,7 @@ The `has_named_parameters` dictates how the presence of these parameters are
 enforced and raises an `ArgumentError` when a method invocation is made that
 violates the rules for those parameters.
 
-See: the [Named Parameter](http://en.wikipedia.org/wiki/named_parameter) 
-article from Wikipedia for more information.
+Related: [Named Parameters in Ruby](http://www.jurisgalang.com/2010/11/09/named-parameters-in-ruby/)
 
 Get It
 ------
