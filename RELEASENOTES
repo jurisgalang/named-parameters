@@ -1,6 +1,6 @@
-0.0.7 [UNRELEASED]
-- [FEATURE] Added support to distinguish named parameters declaration for class
-  and instance methods that uses the same names. So now you could do:
+0.0.7 [Nov 18, 2010]
+- [FEATURE] Added support to distinguish named parameters declaration for 
+  class and instance methods that uses the same names. So now you could do:
   
       class Mailer
         has_named_parameters :send_mail, 
@@ -15,6 +15,7 @@
           # ... do mail sending stuff here ...
         end
       end
+      
 - [FEATURE] Added support for requires clause.
 - [FEATURE] Added support for recognizes clause.
 - [FEATURE] Added support for permissive evaluation of optional parameters.
