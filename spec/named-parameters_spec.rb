@@ -5,13 +5,13 @@ describe "NamedParameters" do
     class Foo
       has_named_parameters :initialize, :required => :x, :optional => [ :y, :z ]
       def initialize opts = {}; end
-
+      
       has_named_parameters :method_one, :required => :x, :optional => [ :y, :z ]
       def method_one x, y, opts = {}; end
-
+      
       def method_two x, y, opts = {}; end
       
-      has_named_parameters :method_three, :required => :x, :optional => [ :y, :z ]
+      has_named_parameters :'self.method_three', :required => :x, :optional => [ :y, :z ]
       def self.method_three x, y, opts = {}; end
 
       def self.method_four x, y, opts = {}; end
@@ -35,7 +35,7 @@ describe "NamedParameters" do
       
       has_named_parameters :method_with_many_optional, :optional => [ :x, :y ]
       def method_with_many_optional opts = {}; end
-
+    
       has_named_parameters :method_with_one_of_each_requirement, :required => :w, :oneof => [ :x, :y ], :optional => :z
       def method_with_one_of_each_requirement opts = {}; end
     end
@@ -52,7 +52,7 @@ describe "NamedParameters" do
     lambda{ Foo.new :x => :x, :y => :y }.should_not raise_error
     lambda{ Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
   end
-
+  
   it "should enforce named parameters for instrumented instance methods" do
     lambda{ @foo = Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
     lambda{ @foo.method_one :x }.should raise_error ArgumentError
@@ -64,7 +64,7 @@ describe "NamedParameters" do
     lambda{ @foo.method_one :x, :y, :x => :x, :y => :y }.should_not raise_error
     lambda{ @foo.method_one :x, :y, :x => :x, :y => :y, :z => :z }.should_not raise_error
   end
-
+  
   it "should not enforce named parameters for un-instrumented instance methods" do
     lambda{ @foo = Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
     lambda{ @foo.method_two :x }.should raise_error ArgumentError
@@ -135,15 +135,15 @@ describe "NamedParameters" do
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :y => :y, :z => :z }.should_not raise_error
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error ArgumentError
   end
-
+  
   it "should be able to supply the default values for optional parameters" do
     class Zoo
       has_named_parameters :method_with_one_optional_parameter, :optional => { :x => 1 }
       def method_with_one_optional_parameter opts = { }; opts[:x]; end
-
+  
       has_named_parameters :method_with_many_optional_parameters, :optional => [ [ :x, 1 ], [ :y, 2 ] ]
       def method_with_many_optional_parameters opts = { }; opts[:x] + opts[:y]; end
-
+  
       has_named_parameters :method_with_many_optional_parameters_too, :optional => [ { :x => 1 }, { :y => 2 } ]
       def method_with_many_optional_parameters_too opts = { }; opts[:x] + opts[:y]; end
     end
@@ -151,11 +151,11 @@ describe "NamedParameters" do
     zoo = Zoo.new
     zoo.method_with_one_optional_parameter.should eql 1
     zoo.method_with_one_optional_parameter(:x => 2).should eql 2
-
+  
     zoo.method_with_many_optional_parameters.should eql 3
     zoo.method_with_many_optional_parameters(:x => 2).should eql 4
     zoo.method_with_many_optional_parameters(:x => 2, :y => 3).should eql 5
-
+  
     zoo.method_with_many_optional_parameters_too.should eql 3
     zoo.method_with_many_optional_parameters_too(:x => 2).should eql 4
     zoo.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql 5
@@ -163,8 +163,10 @@ describe "NamedParameters" do
   
   it "should be able to instrument the class method new" do
     class Quux
-      has_named_parameters :new, :required => :x
-      def self.new opts = { }; end
+      has_named_parameters :'self.new', :required => :x
+      class << self
+        def new opts = { }; end
+      end
       def initialize opts = { }; end
     end
     lambda { Quux.new }.should raise_error ArgumentError
@@ -185,7 +187,7 @@ describe "NamedParameters" do
     lambda { Recognizes.new :x => :x, :y => :y }.should_not raise_error
     lambda { Recognizes.new :z => :z }.should raise_error ArgumentError
   end
-
+  
   it "should be able to specify required parameters using the recognizes method" do
     class Required
       requires [ :x, :y ]

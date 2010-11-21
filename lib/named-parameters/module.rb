@@ -135,7 +135,7 @@ module NamedParameters
     #   parameters will still be expected.
     #
     def requires params, mode = :strict
-      [ :new, :initialize ].each do |method|
+      [ :'self.new', :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:required => params)
         has_named_parameters method, spec, mode
@@ -157,7 +157,7 @@ module NamedParameters
     #   parameters will still be expected.
     #
     def recognizes params, mode = :strict
-      [ :new, :initialize ].each do |method|
+      [ :'self.new', :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:optional => params)
         has_named_parameters method, spec, mode
@@ -199,9 +199,10 @@ module NamedParameters
     
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
-      instrument name do
+      instrument :"self.#{name}" do
         method = self.eigenclass.instance_method name
-        spec   = specs[key_for :"self.#{name}"] || specs[key_for name]
+        #spec   = specs[key_for :"self.#{name}"] || specs[key_for name]
+        spec   = specs.delete(key_for :"self.#{name}") 
         owner  = "#{self.name}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
@@ -214,7 +215,8 @@ module NamedParameters
     def method_added name  # :nodoc:
       instrument name do
         method = instance_method name
-        spec   = specs[key_for name] || specs[key_for :"self.#{name}"]
+        #spec   = specs[key_for name] || specs[key_for :"self.#{name}"]
+        spec   = specs.delete(key_for name)
         owner  = "#{self.name}#"
         intercept method, owner, name, spec
       end

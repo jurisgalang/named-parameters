@@ -94,7 +94,7 @@ And is applicable to both class and instance methods:
         # ... do send mail stuff here ...
       end
       
-      has_named_parameters :archive, :optional => [ :method => 'zip' ]
+      has_named_parameters :'self.archive', :optional => [ :method => 'zip' ]
       def self.archive options = { }
         # ... do mail archiving stuff here ...
       end
@@ -116,7 +116,8 @@ is instantiated:
       end
     end
 
-Use the **`recognizes`** clause to specify optional parameters for constructors:
+Use the **`recognizes`** clause to specify optional parameters for a class'
+constructor:
 
     class GoogleStorage
       recognizes [ :'group-email', :'apps-domain' ]

@@ -1,3 +1,7 @@
+0.0.8 [UNRELEASED]
+- [INTERNAL] parameter spec will no longer be shared between singleton and 
+  instance methods.
+  
 0.0.7 [Nov 18, 2010]
 - [FEATURE] Added support to distinguish named parameters declaration for 
   class and instance methods that uses the same names. So now you could do:
