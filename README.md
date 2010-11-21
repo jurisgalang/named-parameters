@@ -290,7 +290,7 @@ Prefix the method name with `self.` to apply parameter spec for class methods:
 
 In general, however, when a class has an instance and a class method using
 the same name, for most cases, one simply delegates to another and will share 
-the same requirements. So the examples cited above is can be refactored:
+the same requirements. So the examples cited above can be refactored:
 
     class Command
       has_named_parameters :'self.exec', :required => :x
