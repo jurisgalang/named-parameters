@@ -201,7 +201,6 @@ module NamedParameters
     def singleton_method_added name  # :nodoc:
       instrument :"self.#{name}" do
         method = self.eigenclass.instance_method name
-        #spec   = specs[key_for :"self.#{name}"] || specs[key_for name]
         spec   = specs.delete(key_for :"self.#{name}") 
         owner  = "#{self.name}::"
         eigenclass.instance_eval do
@@ -215,7 +214,6 @@ module NamedParameters
     def method_added name  # :nodoc:
       instrument name do
         method = instance_method name
-        #spec   = specs[key_for name] || specs[key_for :"self.#{name}"]
         spec   = specs.delete(key_for name)
         owner  = "#{self.name}#"
         intercept method, owner, name, spec
