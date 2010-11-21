@@ -193,9 +193,9 @@ module NamedParameters
     #       ...
     #     end
     #
-    def validates_arguments method, param, &block
-      # TODO: IMPLEMENT
-    end
+    #def validates_arguments method, param, &block
+    #  # TODO: IMPLEMENT
+    #end
     
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:

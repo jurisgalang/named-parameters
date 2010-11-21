@@ -1,5 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+# TODO: reorganize the tests for clarity
+# TODO: need separate spec for the NamedParameters.validate_specs method
+# TODO: factor out specs for required, recognizes, and has_named_parameters
 describe "NamedParameters" do
   before :all do
     class Foo
