@@ -246,6 +246,69 @@ For the above case, it might be better to refactor:
 
     # result:
     # => path: /xxx, options: {}
+    
+Class vs Instance Methods
+-------------------------
+Parameter spec declarations are not shared between class and instance 
+methods even if they share the same name. 
+
+For example, the following `has_named_parameters` declaration below is only 
+applicable to the instance method `exec`:
+
+    class Command
+      has_named_parameters :exec, :required => :x
+      def self.exec opts
+        # ...
+      end
+
+      def exec opts
+        # ...
+      end
+    end
+
+    # the following will *not* raise an ArgumentError because
+    # the has_named_parameter declaration applies only to the
+    # instance method exec...
+    Command.exec      
+
+    # the following will raise an ArgumentError (as expected)
+    command = Command.new
+    command.exec  
+
+Prefix the method name with `self.` to apply parameter spec for class methods:
+
+    class Command
+      has_named_parameters :'self.exec', :required => :x
+      def self.exec opts
+        # ...
+      end
+    end
+
+    # the following will now raise an ArgumentError (as expected)
+    Command.exec
+
+In general, however, when a class has an instance and a class method using
+the same name, for most cases, one simply delegates to another and will share 
+the same requirements. So the examples cited above is can be refactored:
+
+    class Command
+      has_named_parameters :'self.exec', :required => :x
+      def self.exec opts
+        # ...
+      end
+
+      def exec opts
+        Command.exec
+      end
+    end
+
+    # the following will raise an ArgumentError (as expected)
+    Command.exec
+
+    # the following will also raise an ArgumentError as it delegates to the 
+    # class method and violates the parameter requirements
+    command = Command.new
+    command.exec  
 
 Dependencies
 ------------
