@@ -103,7 +103,8 @@ And is applicable to both class and instance methods:
 Shortcuts
 ---------
 In addition to the `has_named_parameters` method, `NamedParameters` also comes
-with two convenience methods for applying a parameter spec for constructors:
+with two convenience methods for implicitly applying parameter specs for 
+constructors.
 
 Use the **`requires`** clause to declare what parameters a class expects when it
 is instantiated:
@@ -116,8 +117,8 @@ is instantiated:
       end
     end
 
-Use the **`recognizes`** clause to specify optional parameters for a class'
-constructor:
+Use the **`recognizes`** clause to specify the optional parameters for a class
+when it is instantiated:
 
     class GoogleStorage
       recognizes [ :'group-email', :'apps-domain' ]
