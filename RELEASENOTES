@@ -1,7 +1,10 @@
 0.0.8 [UNRELEASED]
-- [INTERNAL] parameter spec will no longer be shared between singleton and 
+- [INTERNAL] Parameter spec will no longer be shared between singleton and 
   instance methods. Bonus performance improvement: it no longer needs to keep
   track of the parameter specs after the class is declared.
+- [INTERNAL] The mode argument is no longer entertained by the requires and 
+  recognizes clause. Use the has_named_parameters clause on constructors if 
+  permissive behavior is required on optional parameters.
   
 0.0.7 [Nov 18, 2010]
 - [FEATURE] Added support to distinguish named parameters declaration for 

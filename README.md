@@ -106,22 +106,22 @@ In addition to the `has_named_parameters` method, `NamedParameters` also comes
 with two convenience methods for implicitly applying parameter specs for 
 constructors.
 
-Use the **`requires`** clause to declare what parameters a class expects when it
+Use the `requires` clause to declare what parameters a class expects when it
 is instantiated:
 
     class GoogleStorage
-      requires [ :'access-key', :'secret-key' ]
+      requires :'access-key', :'secret-key'
       
       def initialize options
         # ... do googly stuff here ...
       end
     end
 
-Use the **`recognizes`** clause to specify the optional parameters for a class
+Use the `recognizes` clause to specify the optional parameters for a class
 when it is instantiated:
 
     class GoogleStorage
-      recognizes [ :'group-email', :'apps-domain' ]
+      recognizes :'group-email', :'apps-domain'
       
       def initialize options
         # ... do googly stuff here ...
@@ -131,13 +131,21 @@ when it is instantiated:
 You may also specify default values for parameters when using these clauses:
 
     class GoogleStorage
-      requires   [ :'access-key', :'secret-key' ]
-      recognizes [ [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ] ]
+      requires   :'access-key', :'secret-key'
+      recognizes [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ]
 
       def initialize options
         # ... do googly stuff here ...
       end
     end
+
+The `requires` and `recognizes` clause is equivalent to declaring the lines
+in a class definition:
+
+    has_named_parameters :'self.new', :required => params, :strict
+    has_named_parameters :initialize, :required => params, :strict
+    has_named_parameters :'self.new', :optional => params, :strict
+    has_named_parameters :initialize, :optional => params, :strict
 
 Permissive Mode
 ---------------
@@ -174,15 +182,15 @@ The `:required` and `:oneof` parameters will still be expected:
 For clarity you should skip the `:optional` parameters list altogether when 
 using the `:permissive` mode.
 
-The `requires` and `recognizes` clause for constructors will also accept a 
-`mode` setting:
+The `requires` and `recognizes` clauses does not accept the `mode` argument. 
+If you need to make a constructor's optional parameter spec permissive, use
+the `has_named_parameters` clause instead:
 
-    requires   [ :x ], :permissive
-    recognizes [ :y, :z ], :permissive
+    has_named_parameters :'self.new', :required => params, :permissive
+    has_named_parameters :initialize, :required => params, :permissive
 
-And just like the `:optional` parameter list in the `has_named_parameters` 
-clause, when `:permissive` mode is used, it's clearer to omit the `recognizes`
-clause altogether.
+For brevity, since the mode is `:permissive`, the `:optional` parameters list 
+is skipped.
 
 How It Works
 ------------

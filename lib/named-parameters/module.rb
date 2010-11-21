@@ -122,45 +122,35 @@ module NamedParameters
     
     # Convenience method, equivalent to declaring:
     #
-    #     has_named_parameters :'self.new', :required => params
-    #     has_named_parameters :initialize, :required => params
+    #     has_named_parameters :'self.new', :required => params, :strict
+    #     has_named_parameters :initialize, :required => params, :strict
     # 
     # @param [Array] params the lists of parameters. The list is expected 
     #   to be an `Array` of symbols matching the names of the required 
     #   parameters.
     #
-    # @param [Symbol] mode enforces that only parameters that were named in
-    #   either the `:required`, `:optional`, and `:oneof` list may be allowed.
-    #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
-    #   parameters will still be expected.
-    #
-    def requires params, mode = :strict
+    def requires *params
       [ :'self.new', :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:required => params)
-        has_named_parameters method, spec, mode
+        has_named_parameters method, spec, :strict
       end
     end
     
     # Convenience method, equivalent to declaring:
     #
-    #     has_named_parameters :'self.new', :optional => params
-    #     has_named_parameters :initialize, :optional => params
+    #     has_named_parameters :'self.new', :optional => params, :strict
+    #     has_named_parameters :initialize, :optional => params, :strict
     # 
     # @param [Array] params the lists of parameters. The list is expected 
     #   to be an `Array` of symbols matching the names of the optional
     #   parameters.
     #
-    # @param [Symbol] mode enforces that only parameters that were named in
-    #   either the `:required`, `:optional`, and `:oneof` list may be allowed.
-    #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
-    #   parameters will still be expected.
-    #
-    def recognizes params, mode = :strict
+    def recognizes *params
       [ :'self.new', :initialize ].each do |method|
         spec = specs[key_for method] || { }
         spec.merge!(:optional => params)
-        has_named_parameters method, spec, mode
+        has_named_parameters method, spec, :strict
       end
     end
     
