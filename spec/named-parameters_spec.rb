@@ -180,7 +180,7 @@ describe "NamedParameters" do
   
   it "should be able to specify optional parameters using the recognizes method" do
     class Recognizes
-      recognizes [ :x, :y ]
+      recognizes :x, :y
       def self.new opts = { }; end
       def initialize opts = { }; end
     end
@@ -193,7 +193,7 @@ describe "NamedParameters" do
   
   it "should be able to specify required parameters using the recognizes method" do
     class Required
-      requires [ :x, :y ]
+      requires :x, :y
       def self.new opts = { }; end
       def initialize opts = { }; end
     end
