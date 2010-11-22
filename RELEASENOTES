@@ -5,7 +5,7 @@
 - [INTERNAL] The mode argument is no longer entertained by the requires and 
   recognizes clause. Use the has_named_parameters clause on constructors if 
   permissive behavior is required on optional parameters.
-  
+
 0.0.7 [Nov 18, 2010]
 - [FEATURE] Added support to distinguish named parameters declaration for 
   class and instance methods that uses the same names. So now you could do:

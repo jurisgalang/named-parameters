@@ -182,7 +182,7 @@ The `:required` and `:oneof` parameters will still be expected:
 For clarity you should skip the `:optional` parameters list altogether when 
 using the `:permissive` mode.
 
-The `requires` and `recognizes` clauses does not accept the `mode` argument. 
+However, the `requires` and `recognizes` clauses does not accept the `mode` argument. 
 If you need to make a constructor's optional parameter spec permissive, use
 the `has_named_parameters` clause instead:
 
