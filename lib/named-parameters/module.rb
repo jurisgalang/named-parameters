@@ -33,14 +33,15 @@ module NamedParameters
   # declared in the the `has_named_parameters` clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
   #
-  # @returns [Array] list of symbols representing the name of the declared 
+  # @return [Array<Symbol>] the list of symbols representing the name of the declared 
   #   parameters.
   #
   def declared_parameters
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :specs
     
-    method = self.instance_of?(Class) ? :"self.#{calling_method}" : calling_method
+    caller = block_given? ? yield : calling_method # insane-fucker! :-)
+    method = self.instance_of?(Class) ? :"self.#{caller}" : caller
     spec   = specs[klazz.send(:key_for, method)]
     return [] if spec.nil?
 
@@ -50,13 +51,44 @@ module NamedParameters
     [ :required, :optional, :oneof ].map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
   end
   
+  # Filter out keys from `options` that are not declared as parameter to the
+  # method:
+  #   
+  #     has_named_parameters :foo, :requires => :x
+  #     def foo options = { }
+  #       options.inspect
+  #     end
+  #
+  #     options = { :x => 1, :y => 2, :z => 3 } 
+  #     
+  #     # the following will fail because :y and :z is not recognized/declared
+  #     foo options   # => ArgumentError! 
+  #
+  #     # the following will not fail because we've applied the filter
+  #     foo filter_parameters(options)   # => [ :x ]
+  #
+  # @param [Hash] options the options argument to the method.
+  #
+  # @param [Array<Symbol>] the list of symbols representing the declared
+  #   parameters used to filter `options`. Optional, the list returned by
+  #   `declared_parameters` is used by default.
+  #
+  # @return [Hash] a `Hash` whose keys are limited to what's declared as
+  #   as parameter to the method.
+  #
+  def filter_parameters options, filter = nil
+    caller = calling_method
+    filter ||= declared_parameters{ caller } 
+    options.reject{ |key, value| !filter.include?(key) }
+  end
+    
   # returns the name of the current method
-  def current_method
+  def current_method # :nodoc:
     caller[0][/`([^']*)'/, 1].to_sym
   end
 
   # returns the name of the calling method
-  def calling_method
+  def calling_method # :nodoc:
     caller[1][/`([^']*)'/, 1].to_sym
   end
     
@@ -157,7 +189,7 @@ module NamedParameters
     #     has_named_parameters :'self.new', :required => params, :strict
     #     has_named_parameters :initialize, :required => params, :strict
     # 
-    # @param [Array] params the lists of parameters. The list is expected 
+    # @param [Array<Symbol>] params the lists of parameters. The list is expected 
     #   to be an `Array` of symbols matching the names of the required 
     #   parameters.
     #
@@ -174,7 +206,7 @@ module NamedParameters
     #     has_named_parameters :'self.new', :optional => params, :strict
     #     has_named_parameters :initialize, :optional => params, :strict
     # 
-    # @param [Array] params the lists of parameters. The list is expected 
+    # @param [Array<Symbol>] params the lists of parameters. The list is expected 
     #   to be an `Array` of symbols matching the names of the optional
     #   parameters.
     #

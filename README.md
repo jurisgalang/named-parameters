@@ -164,6 +164,34 @@ method:
 `declared_parameters` is also available from the class methods of user defined
 classes.
 
+Filtering Arguments
+-------------------
+Sometimes you'll have a `Hash` object that will have a bunch of keys that may 
+or may not comply to the parameter declaration of a method, but you may to use 
+the same object everywhere without having to figure out what keys are 
+applicable to a method call:
+
+    options = { :x => 1, :y => :z, :a => 'somevalue' }
+
+    has_named_parameters :foo, :required => [ :x ]
+    def foo options = { }
+      options.inspect
+    end
+
+    has_named_parameters :bar, :required => [ :y ], :optional => [ :a ]
+    def bar options = { }
+      options.inspect
+    end
+    
+    foo options   # => ArgumentError! :y and :a not recognized
+    bar options   # => ArgumentError! :x not recognized
+    
+Use the `filter_parameters` method against the options object to make it 
+comply to the declaration:
+
+    foo filter_parameters(options)   # => [ :x ]
+    bar filter_parameters(options)   # => [ :a, :y ]
+
 Permissive Mode
 ---------------
 When a method is declared with `has_named_parameters` that method will only 
