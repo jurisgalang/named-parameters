@@ -9,6 +9,7 @@
       end
 
       foobar      # => [ :a, :b, :c ]
+
 - [INTERNAL] Parameter spec table is now retained. 
 
 0.0.9 [Nov 24, 2010]
