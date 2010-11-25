@@ -1,3 +1,23 @@
+0.0.9 [Nov 24, 2010]
+- [FEATURE] You can now query what parameters have been declared for a method:
+
+      class Foo
+        has_named_parameters :bar, 
+          :required => :x, :optional => [ :y, :z ]
+        def bar options = { }
+          required_parameters.inspect
+        end
+        
+        has_named_parameters :'self.zoo', 
+          :required => :a, :optional => [ :b, :c ]
+        def self.zoo
+          required_parameters.inspect
+        end
+      end
+      
+      Foo.new.bar  # => [ :x, :y, :z ]
+      Foo.zoo      # => [ :a, :b, :c ]
+      
 0.0.8 [Nov 22, 2010]
 - [INTERNAL] Parameter spec will no longer be shared between singleton and 
   instance methods. Bonus performance improvement: it no longer needs to keep

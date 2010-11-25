@@ -140,6 +140,29 @@ in a class definition:
     has_named_parameters :'self.new', :optional => params, :strict
     has_named_parameters :initialize, :optional => params, :strict
 
+What Was Declared?
+------------------
+You can get a list of declared parameters for a method by invoking 
+`recognized_parameters`:
+
+    class GoogleStorage
+      requires   :'access-key', :'secret-key'
+      recognizes [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ]
+
+      def initialize options
+        # list the parameters declared
+        puts "#{recognized_parameters.join(' ')}"
+        
+        # ... now do the googly stuff ...
+      end
+    end
+    
+    # create an instance of GoogleStorage
+    # and print: [ access-key, secret-key, group-email, apps-domain ]
+    GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
+
+`recognized_parameters` is also accessible from singleton methods.
+
 Permissive Mode
 ---------------
 When a method is declared with `has_named_parameters` that method will only 

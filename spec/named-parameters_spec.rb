@@ -202,4 +202,28 @@ describe "NamedParameters" do
     lambda { Required.new :y => :y }.should raise_error ArgumentError
     lambda { Required.new :x => :x, :y => :y }.should_not raise_error
   end
+  
+  it "should be able to list of recognized parameters" do
+    class RecognizedParameters
+      requires   :x, :y
+      recognizes :a, :b, :c
+      attr :parameters
+      
+      def initialize opts = { }
+        @parameters = recognized_parameters
+      end
+      
+      has_named_parameters :'self.singleton', 
+        :required => [ :w ], 
+        :optional => [ :x, [ :y, 1 ], { :z => 1 } ],
+        :oneof    => [ :a, :b, :c ]
+      def self.singleton opts = { }
+        recognized_parameters
+      end
+    end
+    
+    o = RecognizedParameters.new(:x => :x, :y => :y)
+    o.parameters.should eql [ :a, :b, :c, :x, :y ]
+    RecognizedParameters.singleton(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
+  end
 end

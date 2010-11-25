@@ -28,6 +28,36 @@ module NamedParameters
   end
 
   private
+  # Returns the list of declared parameters for the calling method, ie: the 
+  # concatenation `:required`, `:optional`, and `:oneof` parameter list as 
+  # declared in the the `has_named_parameters` clause, or the list specified 
+  # in either the `requires` and `recognizes` clause.
+  #
+  # @returns [Array] list of symbols representing the name of the declared 
+  #   parameters.
+  #
+  def recognized_parameters
+    klazz  = self.instance_of?(Class) ? self : self.class
+    specs  = klazz.send :specs
+
+    method = self.instance_of?(Class) ? :"self.#{calling_method}" : calling_method
+    spec   = specs[klazz.send(:key_for, method)]
+
+    mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
+    sorter = lambda{ |x, y| x.to_s <=> y.to_s }
+    [ :required, :optional, :oneof ].map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
+  end
+  
+  # returns the name of the current method
+  def current_method
+    caller[0][/`([^']*)'/, 1].to_sym
+  end
+
+  # returns the name of the calling method
+  def calling_method
+    caller[1][/`([^']*)'/, 1].to_sym
+  end
+    
   # this is the method used to validate the name of the received parameters 
   # (based on the defined spec) when an instrumented method is invoked.
   #
@@ -39,14 +69,14 @@ module NamedParameters
     
     # determine what keys are allowed, unless mode is :permissive
     # in which case we don't care unless its listed as required or oneof
-    order   = lambda{ |x, y| x.to_s <=> y.to_s }
-    allowed = spec[:mode] == :permissive ? [] : (optional + required + oneof).sort(&order)
+    sorter  = lambda{ |x, y| x.to_s <=> y.to_s }
+    allowed = spec[:mode] == :permissive ? [] : (optional + required + oneof).sort(&sorter)
     
     # determine what keys were passed;
     # also, plugin the names of parameters assigned with default values
     keys = params.keys.map{ |k| k.to_sym }
-    keys.sort! &order
-    required.sort! &order
+    keys.sort! &sorter
+    required.sort! &sorter
     
     # this lambda is used to present the list of parameters as a string
     list = lambda{ |params| params.join(", ") }
@@ -77,7 +107,7 @@ module NamedParameters
       "Unrecognized parameter specified on call to #{name}: #{list[k]}" \
       unless k.empty?
   end
-  
+
   module ClassMethods
     # Declares that `method` will enforce named parameters behavior as 
     # described in `spec`; a method declared with `:required` and/or 
@@ -191,7 +221,7 @@ module NamedParameters
     def singleton_method_added name  # :nodoc:
       instrument :"self.#{name}" do
         method = self.eigenclass.instance_method name
-        spec   = specs.delete(key_for :"self.#{name}") 
+        spec   = specs[key_for :"self.#{name}"]
         owner  = "#{self.name}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
@@ -204,7 +234,7 @@ module NamedParameters
     def method_added name  # :nodoc:
       instrument name do
         method = instance_method name
-        spec   = specs.delete(key_for name)
+        spec   = specs[key_for name]
         owner  = "#{self.name}#"
         intercept method, owner, name, spec
       end
@@ -256,7 +286,8 @@ module NamedParameters
     
     def key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
-      :"#{self.name}::#{type}.#{method}"
+      name = method.to_s.sub(/^self\./, '')
+      :"#{self.name}::#{type}.#{name}"
     end
     
     # check if in the process of instrumenting a method
