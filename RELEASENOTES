@@ -1,3 +1,16 @@
+0.0.10 [Nov 24, 2010]
+- [BREAKING CHANGE] required_parameters to declared_parameters. So to get the 
+  list of declared parameters for a method, do:
+
+      has_named_parameters :foobar, 
+        :required => :a, :optional => [ :b, :c ]
+      def foobar
+        declared_parameters.inspect
+      end
+
+      foobar      # => [ :a, :b, :c ]
+- [INTERNAL] Parameter spec table is now retained. 
+
 0.0.9 [Nov 24, 2010]
 - [FEATURE] You can now query what parameters have been declared for a method:
 

@@ -204,13 +204,13 @@ describe "NamedParameters" do
   end
   
   it "should be able to list of recognized parameters" do
-    class RecognizedParameters
+    class DeclaredParameters
       requires   :x, :y
       recognizes :a, :b, :c
       attr :parameters
       
       def initialize opts = { }
-        @parameters = recognized_parameters
+        @parameters = declared_parameters
       end
       
       has_named_parameters :'self.singleton', 
@@ -218,12 +218,12 @@ describe "NamedParameters" do
         :optional => [ :x, [ :y, 1 ], { :z => 1 } ],
         :oneof    => [ :a, :b, :c ]
       def self.singleton opts = { }
-        recognized_parameters
+        declared_parameters
       end
     end
     
-    o = RecognizedParameters.new(:x => :x, :y => :y)
+    o = DeclaredParameters.new(:x => :x, :y => :y)
     o.parameters.should eql [ :a, :b, :c, :x, :y ]
-    RecognizedParameters.singleton(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    DeclaredParameters.singleton(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
   end
 end

@@ -36,7 +36,7 @@ module NamedParameters
   # @returns [Array] list of symbols representing the name of the declared 
   #   parameters.
   #
-  def recognized_parameters
+  def declared_parameters
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :specs
 

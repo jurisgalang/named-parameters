@@ -142,8 +142,8 @@ in a class definition:
 
 What Was Declared?
 ------------------
-You can get a list of declared parameters for a method by invoking 
-`recognized_parameters`:
+You can get a list of declared parameters via the `declared_parameters` 
+method:
 
     class GoogleStorage
       requires   :'access-key', :'secret-key'
@@ -151,7 +151,7 @@ You can get a list of declared parameters for a method by invoking
 
       def initialize options
         # list the parameters declared
-        puts "#{recognized_parameters.join(' ')}"
+        puts "#{declared_parameters.join(' ')}"
         
         # ... now do the googly stuff ...
       end
@@ -161,7 +161,8 @@ You can get a list of declared parameters for a method by invoking
     # and print: [ access-key, secret-key, group-email, apps-domain ]
     GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
 
-`recognized_parameters` is also accessible from singleton methods.
+`declared_parameters` is also available from the class methods of user defined
+classes.
 
 Permissive Mode
 ---------------
