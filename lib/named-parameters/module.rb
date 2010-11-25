@@ -39,12 +39,14 @@ module NamedParameters
   def declared_parameters
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :specs
-
+    
     method = self.instance_of?(Class) ? :"self.#{calling_method}" : calling_method
     spec   = specs[klazz.send(:key_for, method)]
+    return [] if spec.nil?
 
     mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
     sorter = lambda{ |x, y| x.to_s <=> y.to_s }
+  
     [ :required, :optional, :oneof ].map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
   end
   
