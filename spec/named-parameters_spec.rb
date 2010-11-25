@@ -226,4 +226,24 @@ describe "NamedParameters" do
     o.parameters.should eql [ :a, :b, :c, :x, :y ]
     DeclaredParameters.singleton(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
   end
+
+  it "should not return nil when declared_parameters is called on uninstrumented method" do
+    class DeclaredParameters
+      has_named_parameters :'self.boogey', 
+        :required => [ :w ], 
+        :optional => [ :x, [ :y, 1 ], { :z => 1 } ],
+        :oneof    => [ :a, :b, :c ]
+      def self.boogey opts = { }
+        declared_parameters
+      end
+      
+      def boogey
+        declared_parameters
+      end
+    end
+    
+    o = DeclaredParameters.new(:x => :x, :y => :y)
+    o.boogey.should eql []
+    DeclaredParameters.boogey(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
+  end
 end
