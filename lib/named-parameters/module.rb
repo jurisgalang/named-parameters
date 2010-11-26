@@ -253,7 +253,7 @@ module NamedParameters
     
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
-      instrument :"self.#{name}" do
+      apply_method_spec :"self.#{name}" do
         method = self.eigenclass.instance_method name
         spec   = specs[key_for :"self.#{name}"]
         owner  = "#{self.name}::"
@@ -266,7 +266,7 @@ module NamedParameters
     
     # add instrumentation for instance methods
     def method_added name  # :nodoc:
-      instrument name do
+      apply_method_spec name do
         method = instance_method name
         spec   = specs[key_for name]
         owner  = "#{self.name}#"
@@ -277,7 +277,7 @@ module NamedParameters
 
     private
     # apply instrumentation to method
-    def instrument method  # :nodoc:
+    def apply_method_spec method  # :nodoc:
       if specs.include? key_for(method) and !instrumenting?
         @instrumenting = true
         yield method
