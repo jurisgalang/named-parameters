@@ -1,5 +1,5 @@
-0.0.13 [UNRELEASED]
-- [INTERNAL] instrument -> apply_method_spec, to make it compatible with Rails
+0.0.13 [Nov 28, 2010]
+- [INTERNAL] instrument -> apply_method_spec, to make it compatible with Rails.
 
 0.0.12 [Nov 25, 2010]
 - [FEATURE] Added apply_filters method.
