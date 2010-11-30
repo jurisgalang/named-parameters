@@ -158,11 +158,69 @@ method:
     end
     
     # create an instance of GoogleStorage
-    # and print: [ access-key, secret-key, group-email, apps-domain ]
+    # and print: [ :access-key, :secret-key, :group-email, :apps-domain ]
     GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
 
 `declared_parameters` is also available from the class methods of user defined
 classes.
+
+You can also pass a list of parameter types to limit the result to specific 
+parameter types:
+
+    class GoogleStorage
+      requires   :'access-key', :'secret-key'
+      recognizes [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ]
+
+      def initialize options
+        # list the parameters declared
+        puts "#{declared_parameters(:required).join(' ')}"
+    
+        # ... now do the googly stuff ...
+      end
+    end
+
+    # create an instance of GoogleStorage
+    # and print: [ :access-key, :secret-key ]
+    GoogleStorage.new :'access-key' => '...', :'secret-key' => '...'
+
+The method `declared_parameters` is context specific. It returns the list of 
+parameters for the current method. To get a list of parameters for a specific
+method, use `declared_parameters_for`:
+
+    class GoogleStorage
+      requires   :'access-key', :'secret-key'
+      recognizes [ :'group-email', 'group@example.org' ], [ :'apps-domain', 'example.org' ]
+
+      def initialize options
+        # list the parameters declared
+        puts "#{declared_parameters(:required).join(' ')}"
+
+        # ... now do the googly stuff ...
+      end
+      
+      def self.required_parameters
+        declared_parameters_for :new, :required
+      end
+
+      def self.optional_parameters
+        declared_parameters_for :new, :optional
+      end
+
+      def self.all_parameters
+        declared_parameters_for :new
+      end
+    end
+
+    # list the required parameters for the class
+    GoogleStorage.required_parameters  # => [ :access-key, :secret-key ]
+
+    # list the optional parameters for the class
+    GoogleStorage.required_parameters  # => [ :group-email, :apps-domain ]
+
+    # list all of the recognized parameters for the class
+    GoogleStorage.all_parameters  # => [ :access-key, :secret-key, :group-email, :apps-domain ]
+    
+Notice that both methods may receive a filter of parameter types.
 
 Filtering Arguments
 -------------------

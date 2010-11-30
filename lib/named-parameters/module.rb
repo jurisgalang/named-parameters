@@ -33,10 +33,13 @@ module NamedParameters
   # declared in the the `has_named_parameters` clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
   #
+  # @param [Array<Symbol>] type limits the list of parameters returned to the
+  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #
   # @return [Array<Symbol>] the list of symbols representing the name of the declared 
   #   parameters.
   #
-  def declared_parameters
+  def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :specs
     
@@ -48,7 +51,11 @@ module NamedParameters
     mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
     sorter = lambda{ |x, y| x.to_s <=> y.to_s }
   
-    [ :required, :optional, :oneof ].map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
+    Array(type).map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
+  end
+  
+  def declared_parameters_for method, type = [ :required, :optional, :oneof ]
+    declared_parameters(type) { method }
   end
   
   # Filter out keys from `options` that are not declared as parameter to the
