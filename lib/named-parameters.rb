@@ -1,3 +1,6 @@
+require "rubygems"
+require "bundler/setup"
+
 require 'named-parameters/object'
 require 'named-parameters/module'
 
