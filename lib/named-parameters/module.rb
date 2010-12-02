@@ -43,9 +43,13 @@ module NamedParameters
   def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :specs
+    method = if block_given?
+      yield # insane-fucker! :-)
+    else
+      caller = calling_method
+      self.instance_of?(Class) ? :"self.#{caller}" : caller
+    end
     
-    caller = block_given? ? yield : calling_method # insane-fucker! :-)
-    method = self.instance_of?(Class) ? :"self.#{caller}" : caller
     spec   = specs[klazz.send(:key_for, method)]
     return [] if spec.nil?
 

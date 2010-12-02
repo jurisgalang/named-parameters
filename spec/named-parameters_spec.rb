@@ -272,15 +272,12 @@ describe "NamedParameters" do
       end
       
       class << self
-        # TODO: not sure if this is a valid use-case - for now expect it to fail...
         def instance_method_parameters
           declared_parameters_for :instance_method
         end
         
         def singleton_method_parameters
-          # GOTCHA: no need to use `self` when referring to singleton methods
-          # from within a singleton method (not sure if that's cool)
-          declared_parameters_for :singleton_method  
+          declared_parameters_for :'self.singleton_method'  
         end
       end
     end
