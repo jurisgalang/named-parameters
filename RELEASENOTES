@@ -1,4 +1,6 @@
 0.0.15 [UNRELEASED]
+- [BUGFIX] declared_parameters_for usage is now consistent under instance and 
+  singleton context.
 - [INTERNAL] Elevated visibility for declared_parameters, 
   declared_parameters_for, and filter_parameters to public.
 - [INTERNAL] Tests added.
