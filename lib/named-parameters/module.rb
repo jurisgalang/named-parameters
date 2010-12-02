@@ -22,22 +22,16 @@
 # @copyright 2010 Juris Galang. All Rights Reserved
 #
 module NamedParameters
-  protected
-  def self.included base # :nodoc:
-    base.extend ClassMethods
-  end
-
-  private
   # Returns the list of declared parameters for the calling method, ie: the 
-  # concatenation `:required`, `:optional`, and `:oneof` parameter list as 
+  # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
   # declared in the the `has_named_parameters` clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
   #
   # @param [Array<Symbol>] type limits the list of parameters returned to the
   #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
   #
-  # @return [Array<Symbol>] the list of symbols representing the name of the declared 
-  #   parameters.
+  # @return [Array<Symbol>] the list of symbols representing the name of the 
+  #   declared parameters.
   #
   def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
@@ -54,6 +48,19 @@ module NamedParameters
     Array(type).map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
   end
   
+  # Returns the list of declared parameters for a specific method, ie: the 
+  # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
+  # declared in the the `has_named_parameters` clause, or the list specified 
+  # in either the `requires` and `recognizes` clause.
+  #
+  # @param [Symbol] method the name of the method in question.
+  #
+  # @param [Array<Symbol>] type limits the list of parameters returned to the
+  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #
+  # @return [Array<Symbol>] the list of symbols representing the name of the 
+  #   declared parameters.
+  #
   def declared_parameters_for method, type = [ :required, :optional, :oneof ]
     declared_parameters(type) { method }
   end
@@ -89,6 +96,12 @@ module NamedParameters
     options.reject{ |key, value| !filter.include?(key) }
   end
     
+  protected
+  def self.included base # :nodoc:
+    base.extend ClassMethods
+  end
+
+  private
   # returns the name of the current method
   def current_method # :nodoc:
     caller[0][/`([^']*)'/, 1].to_sym
