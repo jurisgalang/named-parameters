@@ -272,7 +272,7 @@ describe "NamedParameters" do
       end
       
       class << self
-        # TODO: not sure if this is a valid use-case
+        # TODO: not sure if this is a valid use-case - for now expect it to fail...
         def instance_method_parameters
           declared_parameters_for :instance_method
         end
