@@ -26,9 +26,16 @@ module NamedParameters
   # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
   # declared in the the `has_named_parameters` clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
+  #   
+  #     has_named_parameters :foo, :required => [ :x ], :optional => [ :y ]
+  #     def foo options = { }
+  #       puts declared_parameters.inspect
+  #     end
+  #
+  #     foo :x => 1, :y => 2   # => [ :x, :y ]
   #
   # @param [Array<Symbol>] type limits the list of parameters returned to the
-  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #   parameter types specified.
   #
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
@@ -50,13 +57,24 @@ module NamedParameters
   
   # Returns the list of declared parameters for a specific method, ie: the 
   # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
-  # declared in the the `has_named_parameters` clause, or the list specified 
+  # declared in the the {#has_named_parameters} clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
+  #   
+  #     has_named_parameters :foo, :required => [ :x ], :optional => [ :y ]
+  #     def foo options = { }
+  #       # ...
+  #     end
+  #
+  #     def bar
+  #       puts declared_parameters_for(:foo).inspect
+  #     end
+  #
+  #     bar   # => [ :x, :y ]
   #
   # @param [Symbol] method the name of the method in question.
   #
   # @param [Array<Symbol>] type limits the list of parameters returned to the
-  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #   parameter types specified.
   #
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
@@ -68,14 +86,13 @@ module NamedParameters
   # Filter out keys from `options` that are not declared as parameter to the
   # method:
   #   
-  #     has_named_parameters :foo, :requires => :x
+  #     has_named_parameters :foo, :required => :x
   #     def foo options = { }
   #       options.inspect
   #     end
   #
-  #     options = { :x => 1, :y => 2, :z => 3 } 
-  #     
   #     # the following will fail because :y and :z is not recognized/declared
+  #     options = { :x => 1, :y => 2, :z => 3 } 
   #     foo options   # => ArgumentError! 
   #
   #     # the following will not fail because we've applied the filter
@@ -83,9 +100,9 @@ module NamedParameters
   #
   # @param [Hash] options the options argument to the method.
   #
-  # @param [Array<Symbol>] the list of symbols representing the declared
-  #   parameters used to filter `options`. Optional, the list returned by
-  #   `declared_parameters` is used by default.
+  # @param [Array<Symbol>] filter the list of symbols representing the declared
+  #   parameters used to filter `options`. If not specified then the list 
+  #   returned by {#declared_parameters} is used by default.
   #
   # @return [Hash] a `Hash` whose keys are limited to what's declared as
   #   as parameter to the method.
