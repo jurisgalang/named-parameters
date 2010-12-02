@@ -246,4 +246,48 @@ describe "NamedParameters" do
     o.boogey.should eql []
     DeclaredParameters.boogey(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
   end
+  
+  it "should be able to get the list of declared parameters for specified methods" do
+    class DeclaredParameters
+      has_named_parameters :'instance_method', 
+        :required => [ :w ], 
+        :optional => [ :x, [ :y, 1 ], { :z => 1 } ],
+        :oneof    => [ :a, :b, :c ]
+      def instance_method opts = { }
+      end
+      
+      has_named_parameters :'self.singleton_method', 
+        :required => [ :w ], 
+        :optional => [ :x, [ :y, 1 ], { :z => 1 } ],
+        :oneof    => [ :a, :b, :c ]
+      def self.singleton_method opts = { }
+      end
+      
+      def instance_method_parameters
+        declared_parameters_for :instance_method
+      end
+      
+      def singleton_method_parameters
+        declared_parameters_for :'self.singleton_method'
+      end
+      
+      class << self
+        # TODO: not sure if this is a valid use-case
+        def instance_method_parameters
+          declared_parameters_for :instance_method
+        end
+        
+        def singleton_method_parameters
+          # GOTCHA: no need to use `self` when referring to singleton methods
+          # from within a singleton method (not sure if that's cool)
+          declared_parameters_for :singleton_method  
+        end
+      end
+    end
+    o = DeclaredParameters.new(:x => 1, :y => 1)
+    DeclaredParameters.singleton_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    DeclaredParameters.instance_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    o.instance_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    o.singleton_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
+  end
 end
