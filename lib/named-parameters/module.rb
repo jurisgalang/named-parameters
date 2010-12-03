@@ -26,37 +26,57 @@ module NamedParameters
   # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
   # declared in the the `has_named_parameters` clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
+  #   
+  #     has_named_parameters :foo, :required => [ :x ], :optional => [ :y ]
+  #     def foo options = { }
+  #       puts declared_parameters.inspect
+  #     end
+  #
+  #     foo :x => 1, :y => 2   # => [ :x, :y ]
   #
   # @param [Array<Symbol>] type limits the list of parameters returned to the
-  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #   parameter types specified.
   #
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
   #
   def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
-    specs  = klazz.send :specs
+    specs  = klazz.send :method_specs
+    method = if block_given?
+      yield # insane-fucker! :-)
+    else
+      caller = calling_method
+      self.instance_of?(Class) ? :"self.#{caller}" : caller
+    end
     
-    caller = block_given? ? yield : calling_method # insane-fucker! :-)
-    method = self.instance_of?(Class) ? :"self.#{caller}" : caller
-    spec   = specs[klazz.send(:key_for, method)]
-    return [] if spec.nil?
+    return [] unless spec = specs[klazz.send(:key_for, method)]
 
     mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
     sorter = lambda{ |x, y| x.to_s <=> y.to_s }
-  
     Array(type).map{ |k| spec[k].map(&mapper) }.flatten.sort(&sorter)
   end
   
   # Returns the list of declared parameters for a specific method, ie: the 
   # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
-  # declared in the the `has_named_parameters` clause, or the list specified 
+  # declared in the the {#has_named_parameters} clause, or the list specified 
   # in either the `requires` and `recognizes` clause.
+  #   
+  #     has_named_parameters :foo, :required => [ :x ], :optional => [ :y ]
+  #     def foo options = { }
+  #       # ...
+  #     end
+  #
+  #     def bar
+  #       puts declared_parameters_for(:foo).inspect
+  #     end
+  #
+  #     bar   # => [ :x, :y ]
   #
   # @param [Symbol] method the name of the method in question.
   #
   # @param [Array<Symbol>] type limits the list of parameters returned to the
-  #   parameter types specified. Defaults to `[ :required, :optional, :oneof ]`
+  #   parameter types specified.
   #
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
@@ -68,14 +88,13 @@ module NamedParameters
   # Filter out keys from `options` that are not declared as parameter to the
   # method:
   #   
-  #     has_named_parameters :foo, :requires => :x
+  #     has_named_parameters :foo, :required => :x
   #     def foo options = { }
   #       options.inspect
   #     end
   #
-  #     options = { :x => 1, :y => 2, :z => 3 } 
-  #     
   #     # the following will fail because :y and :z is not recognized/declared
+  #     options = { :x => 1, :y => 2, :z => 3 } 
   #     foo options   # => ArgumentError! 
   #
   #     # the following will not fail because we've applied the filter
@@ -83,9 +102,9 @@ module NamedParameters
   #
   # @param [Hash] options the options argument to the method.
   #
-  # @param [Array<Symbol>] the list of symbols representing the declared
-  #   parameters used to filter `options`. Optional, the list returned by
-  #   `declared_parameters` is used by default.
+  # @param [Array<Symbol>] filter the list of symbols representing the declared
+  #   parameters used to filter `options`. If not specified then the list 
+  #   returned by {#declared_parameters} is used by default.
   #
   # @return [Hash] a `Hash` whose keys are limited to what's declared as
   #   as parameter to the method.
@@ -115,7 +134,7 @@ module NamedParameters
   # this is the method used to validate the name of the received parameters 
   # (based on the defined spec) when an instrumented method is invoked.
   #
-  def self.validate_specs name, params, spec  # :nodoc:
+  def self.validate_method_specs name, params, spec  # :nodoc:
     mapper   = lambda{ |n| n.instance_of?(Hash) ? n.keys.first : n }
     optional = spec[:optional].map &mapper
     required = spec[:required].map &mapper
@@ -201,7 +220,7 @@ module NamedParameters
         [ k, v ]
       } ]
       spec[:mode] = mode
-      specs[key_for(method)] = spec
+      method_specs[key_for(method)] = spec
     end
     
     # Convenience method, equivalent to declaring:
@@ -215,7 +234,7 @@ module NamedParameters
     #
     def requires *params
       [ :'self.new', :initialize ].each do |method|
-        spec = specs[key_for method] || { }
+        spec = method_specs[key_for method] || { }
         spec.merge!(:required => params)
         has_named_parameters method, spec, :strict
       end
@@ -232,7 +251,7 @@ module NamedParameters
     #
     def recognizes *params
       [ :'self.new', :initialize ].each do |method|
-        spec = specs[key_for method] || { }
+        spec = method_specs[key_for method] || { }
         spec.merge!(:optional => params)
         has_named_parameters method, spec, :strict
       end
@@ -275,7 +294,7 @@ module NamedParameters
     def singleton_method_added name  # :nodoc:
       apply_method_spec :"self.#{name}" do
         method = self.eigenclass.instance_method name
-        spec   = specs[key_for :"self.#{name}"]
+        spec   = method_specs[key_for :"self.#{name}"]
         owner  = "#{self.name}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
@@ -288,7 +307,7 @@ module NamedParameters
     def method_added name  # :nodoc:
       apply_method_spec name do
         method = instance_method name
-        spec   = specs[key_for name]
+        spec   = method_specs[key_for name]
         owner  = "#{self.name}#"
         intercept method, owner, name, spec
       end
@@ -298,7 +317,7 @@ module NamedParameters
     private
     # apply instrumentation to method
     def apply_method_spec method  # :nodoc:
-      if specs.include? key_for(method) and !instrumenting?
+      if method_specs.include? key_for(method) and !instrumenting?
         @instrumenting = true
         yield method
         @instrumenting = false
@@ -324,7 +343,7 @@ module NamedParameters
         params = defaults.merge params
         
         # validate the parameters against the spec
-        NamedParameters::validate_specs fullname, params, spec
+        NamedParameters::validate_method_specs fullname, params, spec
         
         # inject the updated argument values for params into the arguments
         # before actually making method invocation
@@ -334,8 +353,8 @@ module NamedParameters
     end
     
     # initialize specs table as needed 
-    def specs  # :nodoc:
-      @specs ||= { }
+    def method_specs  # :nodoc:
+      @method_specs ||= { }
     end
     
     def key_for method
