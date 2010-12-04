@@ -1,8 +1,10 @@
-0.0.15 [Dec 3, 2010]
+0.0.15 [UNRELEASED]
 - [BUGFIX] declared_parameters_for usage is now consistent under instance and 
   singleton context.
 - [INTERNAL] Elevated visibility for declared_parameters, 
   declared_parameters_for, and filter_parameters to public.
+- [INTERNAL] Added optional processing of block to has_named_parameters and 
+  its ilk.
 - [INTERNAL] Tests added.
 
 0.0.14 [Nov 29, 2010]
