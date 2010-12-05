@@ -21,6 +21,8 @@
 # @author Juris Galang
 # @copyright 2010 Juris Galang. All Rights Reserved
 #
+require 'named-parameters/object'
+
 module NamedParameters
   # Returns the list of declared parameters for the calling method, ie: the 
   # concatenation of `:required`, `:optional`, and `:oneof` parameter list as 
