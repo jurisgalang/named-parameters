@@ -222,12 +222,6 @@ module NamedParameters
       spec[:mode] = mode
       method_specs[key_for(method)] = spec
       yield spec if block_given?
-      #if "#{self}" =~ /Google/
-      #  puts "-----------------------------------------------------"
-      #  puts ">> adding spec: #{key_for(method)}"
-      #  puts ">> #{method_specs.keys.inspect}"
-      #  puts "-----------------------------------------------------"
-      #end
     end
     
     # Convenience method, equivalent to declaring:
@@ -240,7 +234,6 @@ module NamedParameters
     #   parameters.
     #
     def requires *params, &block
-      #puts "requires: #{self} / #{params.inspect}" if ("#{self}" =~ /Google/) 
       [ :'self.new', :initialize ].each do |method|
         spec = method_specs[key_for method] || { }
         spec.merge!(:required => params)
@@ -258,7 +251,6 @@ module NamedParameters
     #   parameters.
     #
     def recognizes *params, &block
-      #puts "recognizes: #{self} / #{params.inspect}" if ("#{self}" =~ /Google/) 
       [ :'self.new', :initialize ].each do |method|
         spec = method_specs[key_for method] || { }
         spec.merge!(:optional => params)
@@ -301,7 +293,6 @@ module NamedParameters
     
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
-      #puts "*** (singleton_method_added #{self}/#{name})" if ("#{self}" =~ /Google/) and ("#{name}" =~ /new|initialize/)
       apply_method_spec :"self.#{name}" do
         method = self.eigenclass.instance_method name
         spec   = method_specs[key_for :"self.#{name}"]
@@ -315,7 +306,6 @@ module NamedParameters
     
     # add instrumentation for instance methods
     def method_added name  # :nodoc:
-      #puts "*** (instance_method_added #{self}/#{name})" if ("#{self}" =~ /Google/) and ("#{name}" =~ /new|initialize/)
       apply_method_spec name do
         method = instance_method name
         spec   = method_specs[key_for name]
@@ -328,12 +318,7 @@ module NamedParameters
     private
     # apply instrumentation to method
     def apply_method_spec method  # :nodoc:
-      #if ("#{self}" =~ /Google/) and ("#{method}" =~ /new|initialize/)
-      #  puts "**(applying method spec: #{method} / #{key_for(method)} / #{method_specs.include? key_for(method)} / #{instrumenting?})**" 
-      #  puts "** #{method_specs.inspect} **"
-      #end
       if method_specs.include? key_for(method) and !instrumenting?
-        #puts "applying method spec: #{method} / #{key_for(method)}"
         @instrumenting = true
         yield method
         @instrumenting = false
@@ -343,7 +328,6 @@ module NamedParameters
     # insert parameter validation prior to executing the instrumented method
     def intercept method, owner, name, spec  # :nodoc:
       fullname = "#{owner}#{name}"
-      #puts "> defined_method: #{method}, #{owner}, #{name}, #{spec}"
       define_method name do |*args, &block|
         # locate the argument representing the named parameters value
         # for the method invocation
