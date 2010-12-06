@@ -1,4 +1,4 @@
-0.0.15 [UNRELEASED]
+0.0.15 [Dec 5, 2010]
 - [BUGFIX] declared_parameters_for usage is now consistent under instance and 
   singleton context.
 - [INTERNAL] Elevated visibility for declared_parameters, 
