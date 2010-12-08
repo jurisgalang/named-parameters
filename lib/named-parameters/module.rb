@@ -51,7 +51,7 @@ module NamedParameters
       caller = calling_method
       self.instance_of?(Class) ? :"self.#{caller}" : caller
     end
-    
+
     return [] unless spec = specs[klazz.send(:key_for, method)]
 
     mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
@@ -113,10 +113,11 @@ module NamedParameters
   #
   def filter_parameters options, filter = nil
     caller = calling_method
-    filter ||= declared_parameters{ caller } 
+    method = self.instance_of?(Class) ? :"self.#{caller}" : caller
+    filter ||= declared_parameters { method } 
     options.reject{ |key, value| !filter.include?(key) }
   end
-    
+  
   protected
   def self.included base # :nodoc:
     base.extend ClassMethods

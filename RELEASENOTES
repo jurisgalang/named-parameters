@@ -1,3 +1,7 @@
+0.0.16 [Dec 7, 2010]
+- [BUGFIX] filter_parameters method wasn't computing the correct context for
+  its caller.
+
 0.0.16 [Dec 6, 2010]
 - Added bundler in the gemspec (leftover from previous version bump)
 
