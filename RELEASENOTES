@@ -1,4 +1,4 @@
-0.0.16 [Dec 7, 2010]
+0.0.17 [Dec 7, 2010]
 - [BUGFIX] filter_parameters method wasn't computing the correct context for
   its caller.
 
