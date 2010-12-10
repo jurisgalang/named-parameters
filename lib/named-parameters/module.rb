@@ -297,10 +297,10 @@ module NamedParameters
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
       apply_method_spec :"self.#{name}" do
-        method = self.eigenclass.instance_method name
+        method = self.metaclass.instance_method name
         spec   = method_specs[key_for :"self.#{name}"]
         owner  = "#{self}::"
-        eigenclass.instance_eval do
+        metaclass.instance_eval do
           intercept method, owner, name, spec
         end
       end
