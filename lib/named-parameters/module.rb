@@ -299,7 +299,7 @@ module NamedParameters
       apply_method_spec :"self.#{name}" do
         method = self.eigenclass.instance_method name
         spec   = method_specs[key_for :"self.#{name}"]
-        owner  = "#{self.name}::"
+        owner  = "#{self}::"
         eigenclass.instance_eval do
           intercept method, owner, name, spec
         end
@@ -312,7 +312,7 @@ module NamedParameters
       apply_method_spec name do
         method = instance_method name
         spec   = method_specs[key_for name]
-        owner  = "#{self.name}#"
+        owner  = "#{self}#"
         intercept method, owner, name, spec
       end
       super
@@ -364,7 +364,7 @@ module NamedParameters
     def key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
       name = method.to_s.sub(/^self\./, '')
-      :"#{self.name}::#{type}.#{name}"
+      :"#{self}::#{type}.#{name}"
     end
     
     # check if in the process of instrumenting a method
