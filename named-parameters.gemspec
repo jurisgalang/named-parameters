@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{named-parameters}
-  s.version = "0.0.17"
+  s.version = "0.0.18"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Juris Galang"]
-  s.date = %q{2010-12-07}
+  s.date = %q{2010-12-10}
   s.description = %q{This gem simulates named-parameters in Ruby. 
     It's a complement to the common Ruby idiom of using Hash args to emulate 
     the use of named parameters. }
