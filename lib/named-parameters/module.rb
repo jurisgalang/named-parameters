@@ -217,11 +217,14 @@ module NamedParameters
     def has_named_parameters method, spec, mode = :strict
       # ensure spec entries are initialized and the proper types
       [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
-      spec = Hash[ spec.map{ |k, v| 
-        v = [ v ] unless v.instance_of? Array
+       xx = spec.map{ |k, v| 
+        v = Array(v) unless v.instance_of? Array
         v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
         [ k, v ]
-      } ]
+      }
+      spec = { }
+      xx.each{ |x| spec[x[0]] = x[1] }
+#      spec = Hash[ xx ]
       spec[:mode] = mode
       method_specs[key_for(method)] = spec
       yield spec if block_given?
@@ -331,7 +334,8 @@ module NamedParameters
     # insert parameter validation prior to executing the instrumented method
     def intercept method, owner, name, spec  # :nodoc:
       fullname = "#{owner}#{name}"
-      define_method name do |*args, &block|
+      #define_method name do |*args, &block|
+      define_method name do |*args|
         # locate the argument representing the named parameters value
         # for the method invocation
         params = args.last
@@ -352,7 +356,8 @@ module NamedParameters
         # inject the updated argument values for params into the arguments
         # before actually making method invocation
         args[args.length - 1] = params
-        method.bind(self).call(*args, &block)
+        #method.bind(self).call(*args, &block)
+        method.bind(self).call(*args)
       end
     end
     
