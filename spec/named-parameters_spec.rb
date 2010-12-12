@@ -203,7 +203,7 @@ describe "NamedParameters" do
     lambda { Required.new :x => :x, :y => :y }.should_not raise_error
   end
   
-  it "should be able to list of recognized parameters" do
+  it "should be able to get the list of recognized parameters" do
     class DeclaredParameters
       requires   :x, :y
       recognizes :a, :b, :c

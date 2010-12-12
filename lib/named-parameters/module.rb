@@ -185,6 +185,16 @@ module NamedParameters
   end
 
   module ClassMethods
+    ALIAS_PREFIX = :__intercepted__
+
+    def aliased name # :nodoc:
+      :"#{ALIAS_PREFIX}#{name}"
+    end
+    
+    def unaliased name  # :nodoc:
+      name.gsub(/^#{ALIAS_PREFIX}/, '')
+    end
+    
     # Declares that `method` will enforce named parameters behavior as 
     # described in `spec`; a method declared with `:required` and/or 
     # `:optional` parameters will raise an `ArgumentError` if it is invoked 
@@ -313,11 +323,13 @@ module NamedParameters
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
       apply_method_spec :"self.#{name}" do
-        method = self.metaclass.instance_method name
-        spec   = method_specs[key_for(:"self.#{name}")]
-        owner  = "#{self}::"
+        self.metaclass.send :alias_method, aliased(name), name
+        #method = self.metaclass.instance_method name
+        owner = "#{self}::"
+        spec  = method_specs[key_for(:"self.#{name}")]
         metaclass.instance_eval do
-          intercept method, owner, name, spec
+          #intercept method, owner, name, spec
+          intercept owner, name, spec
         end
       end
       super
@@ -326,10 +338,12 @@ module NamedParameters
     # add instrumentation for instance methods
     def method_added name  # :nodoc:
       apply_method_spec name do
-        method = instance_method name
-        spec   = method_specs[key_for(name)]
-        owner  = "#{self}#"
-        intercept method, owner, name, spec
+        alias_method aliased(name), name
+        #method = instance_method name
+        owner = "#{self}#"
+        spec  = method_specs[key_for(name)]
+        #intercept method, owner, name, spec
+        intercept owner, name, spec
       end
       super
     end
@@ -344,34 +358,91 @@ module NamedParameters
       end
     end
     
-    # insert parameter validation prior to executing the instrumented method
-    def intercept method, owner, name, spec  # :nodoc:
-      fullname = "#{owner}#{name}"
-      #define_method name do |*args, &block|
-      define_method name do |*args|
-        # locate the argument representing the named parameters value
-        # for the method invocation
-        params = args.last
-        args << (params = { }) unless params.instance_of? Hash
+    ## insert parameter validation prior to executing the instrumented method
+    #def intercept method, owner, name, spec  # :nodoc:
+    #  fullname = "#{owner}#{name}"
+    #  define_method name do |*args, &block|
+    #    # locate the argument representing the named parameters value
+    #    # for the method invocation
+    #    params = args.last
+    #    args << (params = { }) unless params.instance_of? Hash
+    #
+    #    # merge the declared default values for params into the arguments
+    #    # used when the method is invoked
+    #    defaults = { }
+    #    spec.each do |k, v|
+    #      next if k == :mode
+    #      v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
+    #    end
+    #    params = defaults.merge params
+    #    
+    #    # validate the parameters against the spec
+    #    NamedParameters::validate_method_specs fullname, params, spec
+    #    
+    #    # inject the updated argument values for params into the arguments
+    #    # before actually making method invocation
+    #    args[args.length - 1] = params
+    #    method.bind(self).call(*args, &block)
+    #  end
+    #end
 
-        # merge the declared default values for params into the arguments
-        # used when the method is invoked
-        defaults = { }
-        spec.each do |k, v|
-          next if k == :mode
-          v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
+    # insert parameter validation prior to executing the instrumented method
+    def intercept owner, name, spec  # :nodoc:
+      class_eval(<<-CODE, __FILE__, __LINE__)
+        def #{name}(*args, &block)
+          # compute the fully-qualified name of the method
+          # this is used when reporting argument errors
+          fullname = "#{owner}#{name}"
+          
+          # locate the argument representing the named parameters value
+          # for the method invocation
+          params   = args.last
+          args << (params = { }) unless params.instance_of? Hash
+          
+          # merge the declared default values for params into the arguments
+          # used when the method is invoked
+          spec     = #{spec.inspect}
+          defaults = { }
+          spec.each do |k, v|
+            next if k == :mode
+            v.each{ |entry| defaults.merge!(entry) if entry.instance_of? Hash }
+          end
+          params = defaults.merge(params)
+          
+          # validate the parameters against the spec
+          NamedParameters::validate_method_specs fullname, params, spec
+
+          # inject the updated argument values for params into the arguments
+          # before actually making method invocation
+          args[args.length - 1] = params
+          method = :"#{ALIAS_PREFIX}#{name}"
+          send method, *args, &block
         end
-        params = defaults.merge params
-        
-        # validate the parameters against the spec
-        NamedParameters::validate_method_specs fullname, params, spec
-        
-        # inject the updated argument values for params into the arguments
-        # before actually making method invocation
-        args[args.length - 1] = params
-        #method.bind(self).call(*args, &block)
-        method.bind(self).call(*args)
-      end
+      CODE
+      
+      #define_method name do |*args, &block|
+      #  # locate the argument representing the named parameters value
+      #  # for the method invocation
+      #  params = args.last
+      #  args << (params = { }) unless params.instance_of? Hash
+      #
+      #  # merge the declared default values for params into the arguments
+      #  # used when the method is invoked
+      #  defaults = { }
+      #  spec.each do |k, v|
+      #    next if k == :mode
+      #    v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
+      #  end
+      #  params = defaults.merge params
+      #  
+      #  # validate the parameters against the spec
+      #  NamedParameters::validate_method_specs fullname, params, spec
+      #  
+      #  # inject the updated argument values for params into the arguments
+      #  # before actually making method invocation
+      #  args[args.length - 1] = params
+      #  method.bind(self).call(*args, &block)
+      #end
     end
     
     # initialize specs table as needed 
@@ -382,7 +453,7 @@ module NamedParameters
     def key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
       name = method.to_s.sub(/^self\./, '')
-      :"#{self}::#{type}.#{name}"
+      :"#{self}::#{type}.#{unaliased name}"
     end
     
     # check if in the process of instrumenting a method
