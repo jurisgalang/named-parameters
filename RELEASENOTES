@@ -1,4 +1,12 @@
-0.0.18 [Dec 10, 201D]
+0.0.19 [Dec 11, 2010]
+- [INTERNAL] Will no longer require "bundler/setup" 
+  See: https://github.com/jurisgalang/named-parameters/issues#issue/2
+- [INTERNAL] Added necessary modifications to support Ruby 1.8.6
+  See: https://github.com/jurisgalang/named-parameters/issues#issue/4
+- [INTERNAL] Intercept method will no longer pass blocks to intercepted 
+  method (temporary)
+
+0.0.18 [Dec 10, 2010]
 - [INTERNAL] No longer relies on self.name to determine the current class' 
   name, because singleton method name in Class could also be overriden.
   See: [Issue #3](https://github.com/jurisgalang/named-parameters/issues#issue/3)
