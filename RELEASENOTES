@@ -1,3 +1,8 @@
+0.0.20 [UNRELEASED]
+- [INTERNAL] Modified implementation for #intercept so that it works for Ruby 
+  1.8.6, 1.8.7, and 1.9.2
+- [INTERNAL] Intercepted methods will now be able to entertain blocks (again)
+
 0.0.19 [Dec 11, 2010]
 - [INTERNAL] Will no longer require "bundler/setup" 
   See: https://github.com/jurisgalang/named-parameters/issues#issue/2
