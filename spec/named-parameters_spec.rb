@@ -45,12 +45,12 @@ describe "NamedParameters" do
   end
   
   it "should allow declaration of has_named_parameters" do
-    Foo.should respond_to :has_named_parameters
+    Foo.should respond_to(:has_named_parameters)
   end
   
   it "should enforce named parameters for constructor" do
-    lambda{ Foo.new }.should raise_error ArgumentError
-    lambda{ Foo.new :w => :w }.should raise_error ArgumentError
+    lambda{ Foo.new }.should raise_error(ArgumentError)
+    lambda{ Foo.new :w => :w }.should raise_error(ArgumentError)
     lambda{ Foo.new :x => :x }.should_not raise_error
     lambda{ Foo.new :x => :x, :y => :y }.should_not raise_error
     lambda{ Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
@@ -58,11 +58,11 @@ describe "NamedParameters" do
   
   it "should enforce named parameters for instrumented instance methods" do
     lambda{ @foo = Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
-    lambda{ @foo.method_one :x }.should raise_error ArgumentError
-    lambda{ @foo.method_one :x, :y }.should raise_error ArgumentError
-    lambda{ @foo.method_one :x, :y, :x => :x, :y => :y, :z => :z, :w => :w }.should raise_error ArgumentError
-    lambda{ @foo.method_one :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
-    lambda{ @foo.method_one :x, :y, :w => :w }.should raise_error ArgumentError
+    lambda{ @foo.method_one :x }.should raise_error(ArgumentError)
+    lambda{ @foo.method_one :x, :y }.should raise_error(ArgumentError)
+    lambda{ @foo.method_one :x, :y, :x => :x, :y => :y, :z => :z, :w => :w }.should raise_error(ArgumentError)
+    lambda{ @foo.method_one :x => :x, :y => :y, :z => :z }.should raise_error(ArgumentError)
+    lambda{ @foo.method_one :x, :y, :w => :w }.should raise_error(ArgumentError)
     lambda{ @foo.method_one :x, :y, :x => :x }.should_not raise_error
     lambda{ @foo.method_one :x, :y, :x => :x, :y => :y }.should_not raise_error
     lambda{ @foo.method_one :x, :y, :x => :x, :y => :y, :z => :z }.should_not raise_error
@@ -70,73 +70,73 @@ describe "NamedParameters" do
   
   it "should not enforce named parameters for un-instrumented instance methods" do
     lambda{ @foo = Foo.new :x => :x, :y => :y, :z => :z }.should_not raise_error
-    lambda{ @foo.method_two :x }.should raise_error ArgumentError
-    lambda{ @foo.method_two :x, :y }.should_not raise_error ArgumentError
-    lambda{ @foo.method_two :x, :y, :w => :w }.should_not raise_error ArgumentError
+    lambda{ @foo.method_two :x }.should raise_error(ArgumentError)
+    lambda{ @foo.method_two :x, :y }.should_not raise_error(ArgumentError)
+    lambda{ @foo.method_two :x, :y, :w => :w }.should_not raise_error(ArgumentError)
   end
 
   it "should enforce named parameters for instrumented class methods" do
-    lambda{ Foo.method_three :x }.should raise_error ArgumentError
-    lambda{ Foo.method_three :x, :y }.should raise_error ArgumentError
-    lambda{ Foo.method_three :x, :y, :x => :x, :y => :y, :z => :z, :w => :w }.should raise_error ArgumentError
-    lambda{ Foo.method_three :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
-    lambda{ Foo.method_three :x, :y, :w => :w }.should raise_error ArgumentError
+    lambda{ Foo.method_three :x }.should raise_error(ArgumentError)
+    lambda{ Foo.method_three :x, :y }.should raise_error(ArgumentError)
+    lambda{ Foo.method_three :x, :y, :x => :x, :y => :y, :z => :z, :w => :w }.should raise_error(ArgumentError)
+    lambda{ Foo.method_three :x => :x, :y => :y, :z => :z }.should raise_error(ArgumentError)
+    lambda{ Foo.method_three :x, :y, :w => :w }.should raise_error(ArgumentError)
     lambda{ Foo.method_three :x, :y, :x => :x }.should_not raise_error
     lambda{ Foo.method_three :x, :y, :x => :x, :y => :y }.should_not raise_error
     lambda{ Foo.method_three :x, :y, :x => :x, :y => :y, :z => :z }.should_not raise_error
   end
 
   it "should not enforce named parameters for un-instrumented class methods" do
-    lambda{ Foo.method_four :x }.should raise_error ArgumentError
-    lambda{ Foo.method_four :x, :y }.should_not raise_error ArgumentError
-    lambda{ Foo.method_four :x, :y, :w => :w }.should_not raise_error ArgumentError
+    lambda{ Foo.method_four :x }.should raise_error(ArgumentError)
+    lambda{ Foo.method_four :x, :y }.should_not raise_error(ArgumentError)
+    lambda{ Foo.method_four :x, :y, :w => :w }.should_not raise_error(ArgumentError)
   end
   
   it "should require all :required parameters" do
     bar = Bar.new
-    lambda{ bar.method_with_one_required }.should raise_error ArgumentError
-    lambda{ bar.method_with_one_required :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_required }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_one_required :a => :a }.should raise_error(ArgumentError)
     lambda{ bar.method_with_one_required :x => :x }.should_not raise_error
             
-    lambda{ bar.method_with_many_required }.should raise_error ArgumentError
-    lambda{ bar.method_with_many_required :x => :x }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_required }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_many_required :x => :x }.should raise_error(ArgumentError)
     lambda{ bar.method_with_many_required :x => :x, :y => :y }.should_not raise_error
   end
   
   it "should require one and only one of :oneof parameters" do
     bar = Bar.new
-    lambda{ bar.method_with_one_oneof }.should raise_error ArgumentError
-    lambda{ bar.method_with_one_oneof :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_oneof }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_one_oneof :a => :a }.should raise_error(ArgumentError)
     lambda{ bar.method_with_one_oneof :x => :x }.should_not raise_error
             
-    lambda{ bar.method_with_many_oneof }.should raise_error ArgumentError
-    lambda{ bar.method_with_many_oneof :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_oneof }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_many_oneof :a => :a }.should raise_error(ArgumentError)
     lambda{ bar.method_with_many_oneof :x => :x }.should_not raise_error
     lambda{ bar.method_with_many_oneof :y => :y }.should_not raise_error
-    lambda{ bar.method_with_many_oneof :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_oneof :x => :x, :y => :y }.should raise_error(ArgumentError)
   end
   
   it "should reject parameters not declared in :required, :optional, or :oneof" do
     bar = Bar.new
     lambda{ bar.method_with_one_optional }.should_not raise_error
     lambda{ bar.method_with_one_optional :x => :x }.should_not raise_error
-    lambda{ bar.method_with_one_optional :a => :a }.should raise_error ArgumentError
-    lambda{ bar.method_with_one_optional :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_optional :a => :a }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_one_optional :x => :x, :y => :y }.should raise_error(ArgumentError)
             
     lambda{ bar.method_with_many_optional }.should_not raise_error
     lambda{ bar.method_with_many_optional :x => :x }.should_not raise_error
     lambda{ bar.method_with_many_optional :y => :y }.should_not raise_error
     lambda{ bar.method_with_many_optional :x => :x, :y => :y }.should_not raise_error
-    lambda{ bar.method_with_many_optional :x => :x, :y => :y, :z => :z }.should raise_error ArgumentError
+    lambda{ bar.method_with_many_optional :x => :x, :y => :y, :z => :z }.should raise_error(ArgumentError)
             
-    lambda{ bar.method_with_one_of_each_requirement }.should raise_error ArgumentError
-    lambda{ bar.method_with_one_of_each_requirement :w => :w }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement }.should raise_error(ArgumentError)
+    lambda{ bar.method_with_one_of_each_requirement :w => :w }.should raise_error(ArgumentError)
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x }.should_not raise_error
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :y => :y }.should_not raise_error
-    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :y => :y }.should raise_error(ArgumentError)
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z }.should_not raise_error
     lambda{ bar.method_with_one_of_each_requirement :w => :w, :y => :y, :z => :z }.should_not raise_error
-    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error ArgumentError
+    lambda{ bar.method_with_one_of_each_requirement :w => :w, :x => :x, :z => :z, :a => :a }.should raise_error(ArgumentError)
   end
   
   it "should be able to supply the default values for optional parameters" do
@@ -152,16 +152,16 @@ describe "NamedParameters" do
     end
     
     zoo = Zoo.new
-    zoo.method_with_one_optional_parameter.should eql 1
-    zoo.method_with_one_optional_parameter(:x => 2).should eql 2
+    zoo.method_with_one_optional_parameter.should eql(1)
+    zoo.method_with_one_optional_parameter(:x => 2).should eql(2)
   
-    zoo.method_with_many_optional_parameters.should eql 3
-    zoo.method_with_many_optional_parameters(:x => 2).should eql 4
-    zoo.method_with_many_optional_parameters(:x => 2, :y => 3).should eql 5
+    zoo.method_with_many_optional_parameters.should eql(3)
+    zoo.method_with_many_optional_parameters(:x => 2).should eql(4)
+    zoo.method_with_many_optional_parameters(:x => 2, :y => 3).should eql(5)
   
-    zoo.method_with_many_optional_parameters_too.should eql 3
-    zoo.method_with_many_optional_parameters_too(:x => 2).should eql 4
-    zoo.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql 5
+    zoo.method_with_many_optional_parameters_too.should eql(3)
+    zoo.method_with_many_optional_parameters_too(:x => 2).should eql(4)
+    zoo.method_with_many_optional_parameters_too(:x => 2, :y => 3).should eql(5)
   end
   
   it "should be able to instrument the class method new" do
@@ -172,9 +172,9 @@ describe "NamedParameters" do
       end
       def initialize opts = { }; end
     end
-    lambda { Quux.new }.should raise_error ArgumentError
-    lambda { Quux.new :y => :y }.should raise_error ArgumentError
-    lambda { Quux.new :x => :x, :y => :y }.should raise_error ArgumentError
+    lambda { Quux.new }.should raise_error(ArgumentError)
+    lambda { Quux.new :y => :y }.should raise_error(ArgumentError)
+    lambda { Quux.new :x => :x, :y => :y }.should raise_error(ArgumentError)
     lambda { Quux.new :x => :x }.should_not raise_error
   end
   
@@ -188,7 +188,7 @@ describe "NamedParameters" do
     lambda { Recognizes.new :x => :x }.should_not raise_error
     lambda { Recognizes.new :y => :y }.should_not raise_error
     lambda { Recognizes.new :x => :x, :y => :y }.should_not raise_error
-    lambda { Recognizes.new :z => :z }.should raise_error ArgumentError
+    lambda { Recognizes.new :z => :z }.should raise_error(ArgumentError)
   end
   
   it "should be able to specify required parameters using the recognizes method" do
@@ -197,9 +197,9 @@ describe "NamedParameters" do
       def self.new opts = { }; end
       def initialize opts = { }; end
     end
-    lambda { Required.new }.should raise_error ArgumentError
-    lambda { Required.new :x => :x }.should raise_error ArgumentError
-    lambda { Required.new :y => :y }.should raise_error ArgumentError
+    lambda { Required.new }.should raise_error(ArgumentError)
+    lambda { Required.new :x => :x }.should raise_error(ArgumentError)
+    lambda { Required.new :y => :y }.should raise_error(ArgumentError)
     lambda { Required.new :x => :x, :y => :y }.should_not raise_error
   end
   
@@ -223,8 +223,8 @@ describe "NamedParameters" do
     end
     
     o = DeclaredParameters.new(:x => :x, :y => :y)
-    o.parameters.should eql [ :a, :b, :c, :x, :y ]
-    DeclaredParameters.singleton(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    o.parameters.should eql([ :a, :b, :c, :x, :y ])
+    DeclaredParameters.singleton(:w => :w, :a => :a).should eql([ :a, :b, :c, :w, :x, :y, :z ])
   end
 
   it "should not return nil when declared_parameters is called on uninstrumented method" do
@@ -243,8 +243,8 @@ describe "NamedParameters" do
     end
     
     o = DeclaredParameters.new(:x => :x, :y => :y)
-    o.boogey.should eql []
-    DeclaredParameters.boogey(:w => :w, :a => :a).should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    o.boogey.should eql([])
+    DeclaredParameters.boogey(:w => :w, :a => :a).should eql([ :a, :b, :c, :w, :x, :y, :z ])
   end
   
   it "should be able to get the list of declared parameters for specified methods" do
@@ -282,9 +282,9 @@ describe "NamedParameters" do
       end
     end
     o = DeclaredParameters.new(:x => 1, :y => 1)
-    DeclaredParameters.singleton_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
-    DeclaredParameters.instance_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
-    o.instance_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
-    o.singleton_method_parameters.should eql [ :a, :b, :c, :w, :x, :y, :z ]
+    DeclaredParameters.singleton_method_parameters.should eql([ :a, :b, :c, :w, :x, :y, :z ])
+    DeclaredParameters.instance_method_parameters.should eql([ :a, :b, :c, :w, :x, :y, :z ])
+    o.instance_method_parameters.should eql([ :a, :b, :c, :w, :x, :y, :z ])
+    o.singleton_method_parameters.should eql([ :a, :b, :c, :w, :x, :y, :z ])
   end
 end

@@ -42,7 +42,7 @@ module NamedParameters
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
   #
-  def declared_parameters(type = [ :required, :optional, :oneof ])
+  def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
     specs  = klazz.send :method_specs
     method = if block_given?
@@ -83,7 +83,7 @@ module NamedParameters
   # @return [Array<Symbol>] the list of symbols representing the name of the 
   #   declared parameters.
   #
-  def declared_parameters_for(method, type = [ :required, :optional, :oneof ])
+  def declared_parameters_for method, type = [ :required, :optional, :oneof ]
     declared_parameters(type) { method }
   end
   
@@ -111,7 +111,7 @@ module NamedParameters
   # @return [Hash] a `Hash` whose keys are limited to what's declared as
   #   as parameter to the method.
   #
-  def filter_parameters(options, filter = nil)
+  def filter_parameters options, filter = nil
     caller = calling_method
     method = self.instance_of?(Class) ? :"self.#{caller}" : caller
     filter ||= declared_parameters { method } 
@@ -119,7 +119,7 @@ module NamedParameters
   end
   
   protected
-  def self.included(base) # :nodoc:
+  def self.included base # :nodoc:
     base.extend ClassMethods
   end
 
@@ -137,7 +137,7 @@ module NamedParameters
   # this is the method used to validate the name of the received parameters 
   # (based on the defined spec) when an instrumented method is invoked.
   #
-  def self.validate_method_specs(name, params, spec)  # :nodoc:
+  def self.validate_method_specs name, params, spec  # :nodoc:
     mapper   = lambda{ |n| n.instance_of?(Hash) ? n.keys.first : n }
     optional = spec[:optional].map &mapper
     required = spec[:required].map &mapper
@@ -214,17 +214,30 @@ module NamedParameters
     #   Set it to `:permissive` to relax the requirement - `:required` and `:oneof`
     #   parameters will still be expected.
     #
-    def has_named_parameters(method, spec, mode = :strict)
+    def has_named_parameters method, spec, mode = :strict
       # ensure spec entries are initialized and the proper types
       [ :required, :optional, :oneof ].each{ |k| spec[k] ||= [] }
-       xx = spec.map{ |k, v| 
-        v = Array(v) unless v.instance_of? Array
+      
+      # assemble/normalize method spec; the following code should 
+      # just be:
+      # 
+      #   spec = Hash[ spec.map{ |k, v| 
+      #     v = [ v ] unless v.instance_of? Array
+      #     v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
+      #     [ k, v ] 
+      #   } ] 
+      # 
+      # but we have to play nice with ruby 1.8.6, so we'll have to be content
+      # with the ugliness for now...
+      pairs = spec.map{ |k, v| 
+        v = [ v ] unless v.instance_of? Array
         v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
         [ k, v ]
       }
       spec = { }
-      xx.each{ |x| spec[x[0]] = x[1] }
-#      spec = Hash[ xx ]
+      pairs.each{ |x| spec[x[0]] = x[1] }
+      spec = Hash[ spec ] 
+
       spec[:mode] = mode
       method_specs[key_for(method)] = spec
       yield spec if block_given?
@@ -239,9 +252,9 @@ module NamedParameters
     #   to be an `Array` of symbols matching the names of the required 
     #   parameters.
     #
-    def requires(*params, &block)
+    def requires *params, &block
       [ :'self.new', :initialize ].each do |method|
-        spec = method_specs[key_for method] || { }
+        spec = method_specs[key_for(method)] || { }
         spec.merge!(:required => params)
         has_named_parameters method, spec, :strict, &block
       end
@@ -256,9 +269,9 @@ module NamedParameters
     #   to be an `Array` of symbols matching the names of the optional
     #   parameters.
     #
-    def recognizes(*params, &block)
+    def recognizes *params, &block
       [ :'self.new', :initialize ].each do |method|
-        spec = method_specs[key_for method] || { }
+        spec = method_specs[key_for(method)] || { }
         spec.merge!(:optional => params)
         has_named_parameters method, spec, :strict, &block
       end
@@ -298,10 +311,10 @@ module NamedParameters
     #end
     
     # add instrumentation for class methods
-    def singleton_method_added(name)  # :nodoc:
+    def singleton_method_added name  # :nodoc:
       apply_method_spec :"self.#{name}" do
         method = self.metaclass.instance_method name
-        spec   = method_specs[key_for :"self.#{name}"]
+        spec   = method_specs[key_for(:"self.#{name}")]
         owner  = "#{self}::"
         metaclass.instance_eval do
           intercept method, owner, name, spec
@@ -311,10 +324,10 @@ module NamedParameters
     end
     
     # add instrumentation for instance methods
-    def method_added(name)  # :nodoc:
+    def method_added name  # :nodoc:
       apply_method_spec name do
         method = instance_method name
-        spec   = method_specs[key_for name]
+        spec   = method_specs[key_for(name)]
         owner  = "#{self}#"
         intercept method, owner, name, spec
       end
@@ -323,7 +336,7 @@ module NamedParameters
 
     private
     # apply instrumentation to method
-    def apply_method_spec(method)  # :nodoc:
+    def apply_method_spec method  # :nodoc:
       if method_specs.include? key_for(method) and !instrumenting?
         @instrumenting = true
         yield method
@@ -332,7 +345,7 @@ module NamedParameters
     end
     
     # insert parameter validation prior to executing the instrumented method
-    def intercept(method, owner, name, spec)  # :nodoc:
+    def intercept method, owner, name, spec  # :nodoc:
       fullname = "#{owner}#{name}"
       #define_method name do |*args, &block|
       define_method name do |*args|
@@ -366,7 +379,7 @@ module NamedParameters
       @method_specs ||= { }
     end
     
-    def key_for(method)
+    def key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
       name = method.to_s.sub(/^self\./, '')
       :"#{self}::#{type}.#{name}"
@@ -378,7 +391,7 @@ module NamedParameters
     end
     
     # initialize the @instrumenting instance variable (housekeeping)
-    def self.extended(base)  # :nodoc:
+    def self.extended base  # :nodoc:
       base.instance_variable_set(:@instrumenting, false)
     end
   end
