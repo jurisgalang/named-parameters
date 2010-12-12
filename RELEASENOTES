@@ -1,4 +1,4 @@
-0.0.20 [UNRELEASED]
+0.0.20 [Dec 12, 2010]
 - [INTERNAL] Modified implementation for #intercept so that it works for Ruby 
   1.8.6, 1.8.7, and 1.9.2
 - [INTERNAL] Intercepted methods will now be able to entertain blocks (again)
