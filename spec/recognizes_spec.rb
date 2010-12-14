@@ -1,6 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "NamedParameters::recognizes" do
+  it "should allow declaration of the recognizes clause" do
+    class Recognizes0; end
+    Recognizes0.should respond_to(:recognizes)
+  end
+  
   it "doesn't complain if you pass it an optional parameter" do
     class Recognizes1
       recognizes :bar

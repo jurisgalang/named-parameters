@@ -1,6 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "NamedParameters::requires" do
+  it "should allow declaration of the requires clause" do
+    class Requires0; end
+    Requires0.should respond_to(:requires)
+  end
+  
   it "complains if you don't pass it a required parameter" do
     class Requires1
       requires :bar
