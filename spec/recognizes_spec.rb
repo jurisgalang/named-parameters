@@ -49,4 +49,15 @@ describe "NamedParameters::recognizes" do
     recognizes = Recognizes5.new
     recognizes.instance_variable_get(:@foo).should eql :foo
   end
+
+  it "allows you to override default values for optional parameters" do
+    class Recognizes6
+      recognizes :foo => :foo
+      def initialize opts = {}
+        @foo = opts[:foo]
+      end
+    end
+    recognizes = Recognizes6.new :foo => :bar
+    recognizes.instance_variable_get(:@foo).should eql :bar
+  end
 end
