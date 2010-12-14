@@ -236,7 +236,7 @@ module NamedParameters
       #     v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
       #     [ k, v ] 
       #   } ] 
-      # 
+      #
       # but we have to play nice with ruby 1.8.6, so we'll have to be content
       # with the ugliness for now...
       pairs = spec.map{ |k, v| 
@@ -248,6 +248,9 @@ module NamedParameters
       pairs.each{ |x| spec[x[0]] = x[1] }
       spec = Hash[ spec ] 
 
+      puts "[#{self}]"
+      puts ">>> #{spec.inspect}"
+      
       spec[:mode] = mode
       method_specs[key_for(method)] = spec
       yield spec if block_given?

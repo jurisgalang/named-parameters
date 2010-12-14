@@ -65,4 +65,43 @@ describe "NamedParameters::recognizes" do
     recognizes = Recognizes6.new :foo => :bar
     recognizes.instance_variable_get(:@foo).should eql :bar
   end
+  
+  it "allows you to declare parameters and default values as Array pairs" do
+    class Recognizes7
+      recognizes [ :foo, :foo ], [ :bar, :bar ]
+      def initialize opts = {}
+        @foo = opts[:foo]
+        @bar = opts[:bar]
+      end
+    end
+    recognizes = Recognizes7.new
+    recognizes.instance_variable_get(:@foo).should eql :foo
+    recognizes.instance_variable_get(:@bar).should eql :bar
+  end
+
+  it "allows you to declare parameters and default values as KV pairs" do
+    class Recognizes8
+      recognizes :foo => :foo , :bar => :bar
+      def initialize opts = {}
+        @foo = opts[:foo]
+        @bar = opts[:bar]
+      end
+    end
+    recognizes = Recognizes8.new
+    recognizes.instance_variable_get(:@foo).should eql :foo
+    recognizes.instance_variable_get(:@bar).should eql :bar
+  end
+
+  it "allows you to declare parameters and default values as Array and KV pairs" do
+    class Recognizes9
+      recognizes [ :foo, :foo ], { :bar => :bar }
+      def initialize opts = {}
+        @foo = opts[:foo]
+        @bar = opts[:bar]
+      end
+    end
+    recognizes = Recognizes9.new
+    recognizes.instance_variable_get(:@foo).should eql :foo
+    recognizes.instance_variable_get(:@bar).should eql :bar
+  end
 end
