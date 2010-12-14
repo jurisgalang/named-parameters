@@ -25,4 +25,22 @@ describe NamedParameters do
     lambda { Foo3.new :foo => :foo }.should raise_error(ArgumentError)
     lambda { Foo3.new :foo => :foo, :bar => :bar }.should raise_error(ArgumentError)
   end
+  
+  it "allows more than one required parameters" do
+    class Foo4
+      requires :foo, :bar, :baz
+      def initialize opts = {}; end
+    end
+    lambda { Foo4.new :foo => :foo, :bar => :bar, :baz => :baz }.should_not raise_error(ArgumentError)
+  end
+
+  it "complains if not all of the required parameters was passed" do
+    class Foo5
+      requires :foo, :bar, :baz
+      def initialize opts = {}; end
+    end
+    lambda { Foo5.new :foo => :foo }.should raise_error(ArgumentError)
+    lambda { Foo5.new :foo => :foo, :bar => :bar }.should raise_error(ArgumentError)
+    lambda { Foo5.new :bar => :bar, :baz => :baz }.should raise_error(ArgumentError)
+  end
 end
