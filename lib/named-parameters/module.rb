@@ -324,11 +324,9 @@ module NamedParameters
     def singleton_method_added name  # :nodoc:
       apply_method_spec :"self.#{name}" do
         self.metaclass.send :alias_method, aliased(name), name
-        #method = self.metaclass.instance_method name
         owner = "#{self}::"
         spec  = method_specs[key_for(:"self.#{name}")]
         metaclass.instance_eval do
-          #intercept method, owner, name, spec
           intercept owner, name, spec
         end
       end
@@ -339,10 +337,8 @@ module NamedParameters
     def method_added name  # :nodoc:
       apply_method_spec name do
         alias_method aliased(name), name
-        #method = instance_method name
         owner = "#{self}#"
         spec  = method_specs[key_for(name)]
-        #intercept method, owner, name, spec
         intercept owner, name, spec
       end
       super
@@ -357,34 +353,6 @@ module NamedParameters
         @instrumenting = false
       end
     end
-    
-    ## insert parameter validation prior to executing the instrumented method
-    #def intercept method, owner, name, spec  # :nodoc:
-    #  fullname = "#{owner}#{name}"
-    #  define_method name do |*args, &block|
-    #    # locate the argument representing the named parameters value
-    #    # for the method invocation
-    #    params = args.last
-    #    args << (params = { }) unless params.instance_of? Hash
-    #
-    #    # merge the declared default values for params into the arguments
-    #    # used when the method is invoked
-    #    defaults = { }
-    #    spec.each do |k, v|
-    #      next if k == :mode
-    #      v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
-    #    end
-    #    params = defaults.merge params
-    #    
-    #    # validate the parameters against the spec
-    #    NamedParameters::validate_method_specs fullname, params, spec
-    #    
-    #    # inject the updated argument values for params into the arguments
-    #    # before actually making method invocation
-    #    args[args.length - 1] = params
-    #    method.bind(self).call(*args, &block)
-    #  end
-    #end
 
     # insert parameter validation prior to executing the instrumented method
     def intercept owner, name, spec  # :nodoc:
@@ -419,30 +387,6 @@ module NamedParameters
           send method, *args, &block
         end
       CODE
-      
-      #define_method name do |*args, &block|
-      #  # locate the argument representing the named parameters value
-      #  # for the method invocation
-      #  params = args.last
-      #  args << (params = { }) unless params.instance_of? Hash
-      #
-      #  # merge the declared default values for params into the arguments
-      #  # used when the method is invoked
-      #  defaults = { }
-      #  spec.each do |k, v|
-      #    next if k == :mode
-      #    v.each{ |entry| defaults.merge! entry if entry.instance_of? Hash }
-      #  end
-      #  params = defaults.merge params
-      #  
-      #  # validate the parameters against the spec
-      #  NamedParameters::validate_method_specs fullname, params, spec
-      #  
-      #  # inject the updated argument values for params into the arguments
-      #  # before actually making method invocation
-      #  args[args.length - 1] = params
-      #  method.bind(self).call(*args, &block)
-      #end
     end
     
     # initialize specs table as needed 
