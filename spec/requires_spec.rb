@@ -59,16 +59,16 @@ describe "NamedParameters::requires" do
   end
 
   # TODO: This feature is still not yet implemented; expect it to fail
-  #it "allows you to declare multiple requires clause and treat it as one" do
-  #  class Requires6
-  #    requires :foo
-  #    requires :bar
-  #    requires :baz
-  #    def initialize opts = {}; end
-  #  end
-  #  lambda { Requires6.new :foo => :foo, :bar => :bar, :baz => :baz }.should_not raise_error(ArgumentError)
-  #  lambda { Requires6.new :foo => :foo }.should raise_error(ArgumentError)
-  #  lambda { Requires6.new :foo => :foo, :bar => :bar }.should raise_error(ArgumentError)
-  #  lambda { Requires6.new :bar => :bar, :baz => :baz }.should raise_error(ArgumentError)
-  #end
+  it "allows you to declare multiple requires clause and treat it as one" do
+    class Requires6
+      requires :foo
+      requires :bar
+      requires :baz
+      def initialize opts = {}; end
+    end
+    lambda { Requires6.new :foo => :foo, :bar => :bar, :baz => :baz }.should_not raise_error(ArgumentError)
+    lambda { Requires6.new :foo => :foo }.should raise_error(ArgumentError)
+    lambda { Requires6.new :foo => :foo, :bar => :bar }.should raise_error(ArgumentError)
+    lambda { Requires6.new :bar => :bar, :baz => :baz }.should raise_error(ArgumentError)
+  end
 end

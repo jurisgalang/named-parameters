@@ -138,10 +138,10 @@ module NamedParameters
   # (based on the defined spec) when an instrumented method is invoked.
   #
   def self.validate_method_specs name, params, spec  # :nodoc:
-    mapper   = lambda{ |n| n.instance_of?(Hash) ? n.keys.first : n }
-    optional = spec[:optional].map &mapper
-    required = spec[:required].map &mapper
-    oneof    = spec[:oneof].map &mapper
+    mapper   = lambda{ |n| n.instance_of?(Hash) ? n.keys : n }
+    optional = spec[:optional].map(&mapper).flatten
+    required = spec[:required].map(&mapper).flatten
+    oneof    = spec[:oneof].map(&mapper).flatten
     
     # determine what keys are allowed, unless mode is :permissive
     # in which case we don't care unless its listed as required or oneof
@@ -239,18 +239,17 @@ module NamedParameters
       #
       # but we have to play nice with ruby 1.8.6, so we'll have to be content
       # with the ugliness for now...
+      #
       pairs = spec.map{ |k, v| 
         v = [ v ] unless v.instance_of? Array
-        v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry }
+        v.map!{ |entry| entry.instance_of?(Array) ? Hash[*entry] : entry  }
         [ k, v ]
       }
+
       spec = { }
       pairs.each{ |x| spec[x[0]] = x[1] }
       spec = Hash[ spec ] 
 
-      puts "[#{self}]"
-      puts ">>> #{spec.inspect}"
-      
       spec[:mode] = mode
       method_specs[key_for(method)] = spec
       yield spec if block_given?
@@ -366,10 +365,10 @@ module NamedParameters
           # compute the fully-qualified name of the method
           # this is used when reporting argument errors
           fullname = "#{owner}#{name}"
-          
+
           # locate the argument representing the named parameters value
           # for the method invocation
-          params   = args.last
+          params = args.last
           args << (params = { }) unless params.instance_of? Hash
           
           # merge the declared default values for params into the arguments
@@ -378,7 +377,7 @@ module NamedParameters
           defaults = { }
           spec.each do |k, v|
             next if k == :mode
-            v.each{ |entry| defaults.merge!(entry) if entry.instance_of? Hash }
+            v.each{ |entry| entry.instance_of?(Hash) ? defaults.merge!(entry) : entry }
           end
           params = defaults.merge(params)
           
