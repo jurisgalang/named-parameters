@@ -1,6 +1,7 @@
 0.0.21 [UNRELEASED]
 - [INTERNAL] Improved syntax handling
 - [INTERNAL] Reorganized tests
+- [INTERNAL] Support added for multi-line requires and recognizes clause
 
 0.0.20 [Dec 12, 2010]
 - [INTERNAL] Modified implementation for #intercept so that it works for Ruby 

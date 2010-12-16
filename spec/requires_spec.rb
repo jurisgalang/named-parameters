@@ -6,14 +6,14 @@ describe "NamedParameters::requires" do
     Requires.should respond_to(:requires)
   end
   
-  it "complains if you don't declare a parameter when using the clause" do
-    lambda { 
-      class Requires0
-        requires
-        def initialize opts = {}; end
-      end
-    }.should raise_error(ArgumentError)
-  end
+  #it "complains if you don't declare a parameter when using the clause" do
+  #  lambda { 
+  #    class Requires0
+  #      requires
+  #      def initialize opts = {}; end
+  #    end
+  #  }.should raise_error(ArgumentError)
+  #end
 
   it "complains if you don't pass it a required parameter" do
     class Requires1

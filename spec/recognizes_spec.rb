@@ -6,14 +6,14 @@ describe "NamedParameters::recognizes" do
     Recognizes.should respond_to(:recognizes)
   end
   
-  it "complains if you don't declare a parameter when using the clause" do
-    lambda { 
-      class Recognizes0
-        recognizes
-        def initialize opts = {}; end
-      end
-    }.should raise_error(ArgumentError)
-  end
+  #it "complains if you don't declare a parameter when using the clause" do
+  #  lambda { 
+  #    class Recognizes0
+  #      recognizes
+  #      def initialize opts = {}; end
+  #    end
+  #  }.should raise_error(ArgumentError)
+  #end
   
   it "doesn't complain if you pass it an optional parameter" do
     class Recognizes1
