@@ -2,8 +2,17 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "NamedParameters::recognizes" do
   it "should allow declaration of the recognizes clause" do
-    class Recognizes0; end
-    Recognizes0.should respond_to(:recognizes)
+    class Recognizes; end
+    Recognizes.should respond_to(:recognizes)
+  end
+  
+  it "complains if you don't declare a parameter when using the clause" do
+    lambda { 
+      class Recognizes0
+        recognizes
+        def initialize opts = {}; end
+      end
+    }.should raise_error(ArgumentError)
   end
   
   it "doesn't complain if you pass it an optional parameter" do
