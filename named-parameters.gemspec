@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{named-parameters}
-  s.version = "0.0.20"
+  s.version = "0.0.21"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Juris Galang"]
-  s.date = %q{2010-12-12}
+  s.date = %q{2010-12-15}
   s.description = %q{This gem simulates named-parameters in Ruby. 
     It's a complement to the common Ruby idiom of using Hash args to emulate 
     the use of named parameters. }
@@ -32,7 +32,10 @@ Gem::Specification.new do |s|
     "lib/named-parameters/module.rb",
     "lib/named-parameters/object.rb",
     "named-parameters.gemspec",
-    "spec/named-parameters_spec.rb",
+    "spec/has_named_parameters_spec.rb",
+    "spec/legacy_spec.rb",
+    "spec/recognizes_spec.rb",
+    "spec/requires_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/jurisgalang/named-parameters}
@@ -41,7 +44,10 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Poor man's named-parameters in Ruby}
   s.test_files = [
-    "spec/named-parameters_spec.rb",
+    "spec/has_named_parameters_spec.rb",
+    "spec/legacy_spec.rb",
+    "spec/recognizes_spec.rb",
+    "spec/requires_spec.rb",
     "spec/spec_helper.rb"
   ]
 

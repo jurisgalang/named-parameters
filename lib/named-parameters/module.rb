@@ -265,10 +265,12 @@ module NamedParameters
     #   parameters.
     #
     def requires *params, &block
-      raise ArgumentError, "You must specify at least one parameter when declaring a requiring clause" if params.empty?
+      raise ArgumentError, \
+        "You must specify at least one parameter when declaring a requiring clause" \
+        if params.empty?
       [ :'self.new', :initialize ].each do |method|
         spec = method_specs[key_for(method)] || { }
-        spec.merge!(:required => params)
+        spec.merge!(:required => Array(spec[:required]) + params)
         has_named_parameters method, spec, :strict, &block
       end
     end
@@ -283,10 +285,12 @@ module NamedParameters
     #   parameters.
     #
     def recognizes *params, &block
-      raise ArgumentError, "You must specify at least one parameter when declaring a recognizes clause" if params.empty?
+      raise ArgumentError, \
+        "You must specify at least one parameter when declaring a recognizes clause" \
+        if params.empty?
       [ :'self.new', :initialize ].each do |method|
         spec = method_specs[key_for(method)] || { }
-        spec.merge!(:optional => params)
+        spec.merge!(:optional => Array(spec[:optional]) + params)
         has_named_parameters method, spec, :strict, &block
       end
     end

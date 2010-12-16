@@ -90,14 +90,14 @@ describe "NamedParameters::recognizes" do
 
   it "allows you to declare parameters and default values as KV pairs" do
     class Recognizes8
-      recognizes :xen => :xen, :bar => :bar
+      recognizes :foo => :foo, :bar => :bar
       def initialize opts = {}
-        @xen = opts[:xen]
+        @foo = opts[:foo]
         @bar = opts[:bar]
       end
     end
     recognizes = Recognizes8.new
-    recognizes.instance_variable_get(:@xen).should eql(:xen)
+    recognizes.instance_variable_get(:@foo).should eql(:foo)
     recognizes.instance_variable_get(:@bar).should eql(:bar)
   end
 
@@ -131,5 +131,30 @@ describe "NamedParameters::recognizes" do
     recognizes.instance_variable_get(:@baz).should  eql(:baz)
     recognizes.instance_variable_get(:@zoo).should  eql(:zoo)
     recognizes.instance_variable_get(:@quux).should eql(:quux)
+  end
+
+  it "allows you to declare multiple requires clause and treat it as one" do
+    class Recognizes11
+      recognizes :foo
+      recognizes [ :bar, :bar ]
+      recognizes :baz => :baz
+      def initialize opts = { }
+        @foo = opts[:foo]
+        @bar = opts[:bar]
+        @baz = opts[:baz]
+      end
+    end
+    lambda { Recognizes11.new :foo => :foo, :bar => :bar, :baz => :baz }.should_not raise_error(ArgumentError)
+    lambda { Recognizes11.new :quux => :quux }.should raise_error(ArgumentError)
+    
+    recognizes = Recognizes11.new
+    recognizes.instance_variable_get(:@foo).should be_nil
+    recognizes.instance_variable_get(:@bar).should eql(:bar)
+    recognizes.instance_variable_get(:@baz).should eql(:baz)
+
+    recognizes = Recognizes11.new :foo => :foo
+    recognizes.instance_variable_get(:@foo).should eql(:foo)
+    recognizes.instance_variable_get(:@bar).should eql(:bar)
+    recognizes.instance_variable_get(:@baz).should eql(:baz)
   end
 end

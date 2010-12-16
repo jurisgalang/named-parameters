@@ -58,7 +58,6 @@ describe "NamedParameters::requires" do
     lambda { Requires5.new :bar => :bar, :baz => :baz }.should raise_error(ArgumentError)
   end
 
-  # TODO: This feature is still not yet implemented; expect it to fail
   it "allows you to declare multiple requires clause and treat it as one" do
     class Requires6
       requires :foo
