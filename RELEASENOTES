@@ -1,4 +1,4 @@
-0.0.21 [UNRELEASED]
+0.0.21 [Dec 16, 2010]
 - [INTERNAL] Improved syntax handling
 - [INTERNAL] Reorganized tests
 - [INTERNAL] Support added for multi-line requires and recognizes clause
