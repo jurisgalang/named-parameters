@@ -44,15 +44,15 @@ module NamedParameters
   #
   def declared_parameters type = [ :required, :optional, :oneof ]
     klazz  = self.instance_of?(Class) ? self : self.class
-    specs  = klazz.send :method_specs
+    specs  = klazz.send :__method_specs
     method = if block_given?
       yield # insane-fucker! :-)
     else
-      caller = calling_method
+      caller = __calling_method
       self.instance_of?(Class) ? :"self.#{caller}" : caller
     end
 
-    return [] unless spec = specs[klazz.send(:key_for, method)]
+    return [] unless spec = specs[klazz.send(:__key_for, method)]
 
     mapper = lambda{ |entry| entry.instance_of?(Hash) ? entry.keys.first : entry }
     sorter = lambda{ |x, y| x.to_s <=> y.to_s }
@@ -112,7 +112,7 @@ module NamedParameters
   #   as parameter to the method.
   #
   def filter_parameters options, filter = nil
-    caller = calling_method
+    caller = __calling_method
     method = self.instance_of?(Class) ? :"self.#{caller}" : caller
     filter ||= declared_parameters { method } 
     options.reject{ |key, value| !filter.include?(key) }
@@ -125,12 +125,12 @@ module NamedParameters
 
   private
   # returns the name of the current method
-  def current_method # :nodoc:
+  def __current_method # :nodoc:
     caller[0][/`([^']*)'/, 1].to_sym
   end
 
   # returns the name of the calling method
-  def calling_method # :nodoc:
+  def __calling_method # :nodoc:
     caller[1][/`([^']*)'/, 1].to_sym
   end
     
@@ -187,14 +187,6 @@ module NamedParameters
   module ClassMethods
     ALIAS_PREFIX = :__intercepted__
 
-    def aliased name # :nodoc:
-      :"#{ALIAS_PREFIX}#{name}"
-    end
-    
-    def unaliased name  # :nodoc:
-      name.gsub(/^#{ALIAS_PREFIX}/, '')
-    end
-    
     # Declares that `method` will enforce named parameters behavior as 
     # described in `spec`; a method declared with `:required` and/or 
     # `:optional` parameters will raise an `ArgumentError` if it is invoked 
@@ -251,7 +243,7 @@ module NamedParameters
       spec = Hash[ spec ] 
 
       spec[:mode] = mode
-      method_specs[key_for(method)] = spec
+      __method_specs[__key_for(method)] = spec
       yield spec if block_given?
     end
     
@@ -269,7 +261,7 @@ module NamedParameters
       #  "You must specify at least one parameter when declaring a requiring clause" \
       #  if params.empty?
       [ :'self.new', :initialize ].each do |method|
-        spec = method_specs[key_for(method)] || { }
+        spec = __method_specs[__key_for(method)] || { }
         spec.merge!(:required => Array(spec[:required]) + params)
         has_named_parameters method, spec, :strict, &block
       end
@@ -289,7 +281,7 @@ module NamedParameters
       #  "You must specify at least one parameter when declaring a recognizes clause" \
       #  if params.empty?
       [ :'self.new', :initialize ].each do |method|
-        spec = method_specs[key_for(method)] || { }
+        spec = __method_specs[__key_for(method)] || { }
         spec.merge!(:optional => Array(spec[:optional]) + params)
         has_named_parameters method, spec, :strict, &block
       end
@@ -330,12 +322,12 @@ module NamedParameters
     
     # add instrumentation for class methods
     def singleton_method_added name  # :nodoc:
-      apply_method_spec :"self.#{name}" do
-        self.metaclass.send :alias_method, aliased(name), name
+      __apply_method_spec :"self.#{name}" do
+        self.metaclass.send :alias_method, __aliased(name), name
         owner = "#{self}::"
-        spec  = method_specs[key_for(:"self.#{name}")]
+        spec  = __method_specs[__key_for(:"self.#{name}")]
         metaclass.instance_eval do
-          intercept owner, name, spec
+          __intercept owner, name, spec
         end
       end
       super
@@ -343,27 +335,35 @@ module NamedParameters
     
     # add instrumentation for instance methods
     def method_added name  # :nodoc:
-      apply_method_spec name do
-        alias_method aliased(name), name
+      __apply_method_spec name do
+        alias_method __aliased(name), name
         owner = "#{self}#"
-        spec  = method_specs[key_for(name)]
-        intercept owner, name, spec
+        spec  = __method_specs[__key_for(name)]
+        __intercept owner, name, spec
       end
       super
     end
 
     private
+    def __aliased name # :nodoc:
+      :"#{ALIAS_PREFIX}#{name}"
+    end
+    
+    def __unaliased name  # :nodoc:
+      name.gsub(/^#{ALIAS_PREFIX}/, '')
+    end
+
     # apply instrumentation to method
-    def apply_method_spec method  # :nodoc:
-      if method_specs.include? key_for(method) and !instrumenting?
-        @instrumenting = true
+    def __apply_method_spec method  # :nodoc:
+      if __method_specs.include? __key_for(method) and !__instrumenting?
+        @__instrumenting = true
         yield method
-        @instrumenting = false
+        @__instrumenting = false
       end
     end
 
     # insert parameter validation prior to executing the instrumented method
-    def intercept owner, name, spec  # :nodoc:
+    def __intercept owner, name, spec  # :nodoc:
       class_eval(<<-CODE, __FILE__, __LINE__)
         def #{name}(*args, &block)
           # compute the fully-qualified name of the method
@@ -398,24 +398,24 @@ module NamedParameters
     end
     
     # initialize specs table as needed 
-    def method_specs  # :nodoc:
-      @method_specs ||= { }
+    def __method_specs  # :nodoc:
+      @__method_specs ||= { }
     end
     
-    def key_for method
+    def __key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
       name = method.to_s.sub(/^self\./, '')
-      :"#{self}::#{type}.#{unaliased name}"
+      :"#{self}::#{type}.#{__unaliased name}"
     end
     
     # check if in the process of instrumenting a method
-    def instrumenting?  # :nodoc:
-      @instrumenting
+    def __instrumenting?  # :nodoc:
+      @__instrumenting
     end
     
-    # initialize the @instrumenting instance variable (housekeeping)
+    # initialize the @__instrumenting instance variable (housekeeping)
     def self.extended base  # :nodoc:
-      base.instance_variable_set(:@instrumenting, false)
+      base.instance_variable_set(:@__instrumenting, false)
     end
   end
 end
