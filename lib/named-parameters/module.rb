@@ -184,9 +184,9 @@ module NamedParameters
       unless k.empty?
   end
 
-  module ClassMethods
-    ALIAS_PREFIX = :__intercepted__
+  ALIAS_PREFIX = :__intercepted__ # :nodoc:
 
+  module ClassMethods
     # Declares that `method` will enforce named parameters behavior as 
     # described in `spec`; a method declared with `:required` and/or 
     # `:optional` parameters will raise an `ArgumentError` if it is invoked 
@@ -345,14 +345,6 @@ module NamedParameters
     end
 
     private
-    def __aliased name # :nodoc:
-      :"#{ALIAS_PREFIX}#{name}"
-    end
-    
-    def __unaliased name  # :nodoc:
-      name.gsub(/^#{ALIAS_PREFIX}/, '')
-    end
-
     # apply instrumentation to method
     def __apply_method_spec method  # :nodoc:
       if __method_specs.include? __key_for(method) and !__instrumenting?
@@ -391,23 +383,30 @@ module NamedParameters
           # inject the updated argument values for params into the arguments
           # before actually making method invocation
           args[args.length - 1] = params
-          method = :"#{ALIAS_PREFIX}#{name}"
+          method = :"#{NamedParameters::ALIAS_PREFIX}#{name}"
           send method, *args, &block
         end
       CODE
     end
-    
-    # initialize specs table as needed 
-    def __method_specs  # :nodoc:
-      @__method_specs ||= { }
-    end
-    
+
     def __key_for method
       type = method.to_s =~ /^self\./ ? :singleton : :instance
       name = method.to_s.sub(/^self\./, '')
       :"#{self}::#{type}.#{__unaliased name}"
     end
     
+    def __aliased name # :nodoc:
+      :"#{NamedParameters::ALIAS_PREFIX}#{name}"
+    end
+    
+    def __unaliased name  # :nodoc:
+      name.gsub(/^#{NamedParameters::ALIAS_PREFIX}/, '')
+    end
+
+    # initialize specs table as needed 
+    def __method_specs  # :nodoc:
+      @__method_specs ||= { }
+    end
     # check if in the process of instrumenting a method
     def __instrumenting?  # :nodoc:
       @__instrumenting

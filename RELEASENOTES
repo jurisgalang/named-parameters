@@ -1,3 +1,6 @@
+0.0.22 [Dec 16, 2010]
+- [INTERNAL] "Safe" names for constants
+
 0.0.21 [Dec 16, 2010]
 - [INTERNAL] Improved syntax handling
 - [INTERNAL] Reorganized tests
